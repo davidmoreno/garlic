@@ -3,6 +3,8 @@
 #include <onion/response.hpp>
 #include <onion/request.hpp>
 #include <onion/shortcuts.h>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 #include <boost/algorithm/string.hpp>
 
@@ -15,9 +17,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-
-#define USERNAME "dmoreno"
-#define PASSWORD "dmoreno"
+#include <sstream>
 
 using namespace Onion;
 
@@ -28,6 +28,7 @@ extern "C" void style_css(onion_dict *context, onion_response *res);
 class PPepper{
 private:
 	std::string configdir;
+	boost::property_tree::ptree ini;
 public:
 	PPepper(const std::string &configdir){
 		char *basefilename_c;
@@ -38,6 +39,10 @@ public:
 		}
 		this->configdir=basefilename_c;
 		free(basefilename_c);
+		
+		boost::property_tree::ini_parser::read_ini(this->configdir+"/config.ini", ini);
+
+			
 	}
 	
 	onion_connection_status login(Onion::Request &req, Onion::Response &res){
@@ -45,7 +50,8 @@ public:
 			return onion_shortcut_redirect("/index",req.c_handler(), res.c_handler());
 		Dict context;
 		if (req.post().has("username")){
-			if (req.post().get("username")==USERNAME && req.post().get("password")==PASSWORD){
+			if (req.post().get("username")==ini.get<std::string>("global.username") && 
+					req.post().get("password")==ini.get<std::string>("global.username")){
 				req.session().add("loggedin","true");
 				return onion_shortcut_redirect("/index",req.c_handler(), res.c_handler());
 			}
@@ -89,30 +95,44 @@ public:
 		if (!req.session().has("loggedin"))
 			return onion_shortcut_redirect("/",req.c_handler(), res.c_handler());
 		
-		Dict ret;
 		DIR *dir=opendir((configdir+"/log").c_str());
 		struct dirent *ent;
+
+		std::vector<std::string> files;
 		while ( (ent=readdir(dir)) ){
 			std::string filename=ent->d_name;
-			if (boost::algorithm::ends_with(filename,".pid")){
-				Dict data;
-				std::string name=filename.substr(0,filename.length()-4);
-				data.add("name",name);
-				data.add("timestamp",name);
-				
-				try{
-					auto result=file2string(configdir+"/log/"+name+".result");
-					data.add("result",result);
-				}
-				catch(...){ // if no result, still running.. unless something went bad.
-					data.add("running","true"); // Fixme to real check if running
-				}
-				
-				ret.add(name, data);
-			}
+			if (boost::algorithm::ends_with(filename,".pid"))
+				files.push_back(filename.substr(0,filename.length()-4));
 		}
-		
 		closedir(dir);
+		
+		std::sort(files.begin(), files.end(),[](const std::string &A, const std::string &B){ return B<A; });
+		
+		Dict ret;
+		int n=8;
+		int count=files.size();
+		for (const std::string &name: files){
+			if (n--==0)
+				break;
+				
+			Dict data;
+			std::stringstream ss;
+			ss<<"#"<<count;
+			count--;
+			
+			data.add("name",ss.str());
+			data.add("timestamp",name);
+			
+			try{
+				auto result=file2string(configdir+"/log/"+name+".result");
+				data.add("result",result);
+			}
+			catch(...){ // if no result, still running.. unless something went bad.
+				data.add("running","true"); // Fixme to real check if running
+			}
+			
+			ret.add(name, data);
+		}
 		
 		res<<ret.toJSON();
 		return OCS_PROCESSED;

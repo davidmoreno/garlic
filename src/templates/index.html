@@ -24,7 +24,7 @@ reload_results = function(){
 		var ul=$('#results')
 		var lis=[]
 		for (var k in data){
-			var li=$('<li>').html($('<a>').text(Number(data[k].name)-1361290113).attr('href','/result/'+data[k].name))
+			var li=$('<li>').html($('<a>').text(data[k].name).attr('href','/result/'+k))
 			li.append('<br/>' + (new Date(Number(data[k].timestamp)*1000)) + '<br>Result: ' + data[k].result)
 			
 			if (data[k].result==0)
