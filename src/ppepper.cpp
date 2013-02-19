@@ -160,6 +160,27 @@ public:
                        (std::istreambuf_iterator<char>()    ) );
 	}
 	
+	void send_email_error(const std::string &id){
+		setenv("TO", ini.get<std::string>("email.to").c_str(),1);
+		setenv("FROM", ini.get<std::string>("email.to").c_str(),1);
+		setenv("SUBJECT", (ini.get<std::string>("email.subject_prefix") + "error on test").c_str(),1);
+		close(0);
+		int fd=open((configdir+"/log/"+id+".output").c_str(), O_RDONLY);
+		assert(fd==0);
+		ONION_WARNING("%s",ini.get<std::string>("email.mta").c_str());
+		system(ini.get<std::string>("email.mta").c_str());
+	}
+	void send_email_ok(const std::string &id){
+		setenv("TO", ini.get<std::string>("email.to").c_str(),1);
+		setenv("FROM", ini.get<std::string>("email.to").c_str(),1);
+		setenv("SUBJECT", (ini.get<std::string>("email.subject_prefix") + "test passed succesfully").c_str(),1);
+		close(0);
+		int fd=open((configdir+"/log/"+id+".output").c_str(), O_RDONLY);
+		assert(fd==0);
+		ONION_WARNING("%s",ini.get<std::string>("email.mta").c_str());
+		system(ini.get<std::string>("email.mta").c_str());
+	}
+	
 	std::string run_test(){
 		char now[1024];
 		char tmp[1024];
@@ -194,10 +215,6 @@ public:
 			int ok=system("./test.sh");
 			fd=close(0);
 			assert(fd==0);
-			fd=close(1);
-			assert(fd==0);
-			fd=close(2);
-			assert(fd==0);
 			
 			assert(fd>=0);
 			snprintf(tmp,16,"%d",ok);
@@ -205,6 +222,17 @@ public:
 			fd=open((basefilename+".result").c_str(), O_WRONLY|O_CREAT, 0666);
 			write(fd,tmp,strlen(tmp));
 			close(fd);
+			
+			if (ok!=0)
+				send_email_error(now);
+			else
+				send_email_ok(now);
+
+			fd=close(1);
+			assert(fd==0);
+			fd=close(2);
+			assert(fd==0);
+			
 			exit(ok);
 		}
 		return now;
