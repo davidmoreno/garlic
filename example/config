@@ -1,0 +1,6 @@
+[password]
+coralbits=coralbits
+
+[email]
+mta=sendmail
+mailto=dmoreno@coralbits.com

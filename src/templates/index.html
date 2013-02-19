@@ -1,13 +1,54 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-{% if result %}
-<h2>{% trans "Last execution result:" %} {{result}}</h2>
+{% if test_name %}
+<h2>{% trans "Executed test:" %} {{test_name}}</h2>
 {% endif %}
 
-<h2>{% trans "Test nr1 "%}</h2>
+<h2>{% trans "Run now!"%}</h2>
 <form method="post">
 <input type="hidden" name="test" value="1">
 <input type="submit" name="run" value="Run">
 </form>
+
+<a href="/index">{% trans "Reload" %}</a>
+
+<h2>{% trans "Latest executions" %}</h2>
+
+<ul id="results">
+</ul>
+
+<script>
+reload_results = function(){
+	$.get('/results', function(data){
+		var ul=$('#results')
+		var lis=[]
+		for (var k in data){
+			var li=$('<li>').html($('<a>').text(Number(data[k].name)-1361290113).attr('href','/result/'+data[k].name))
+			li.append('<br/>' + (new Date(Number(data[k].timestamp)*1000)) + '<br>Result: ' + data[k].result)
+			
+			if (data[k].result==0)
+				li.addClass("ok");
+			else if (data[k].running)
+				li.addClass("running");
+			else
+				li.addClass("error");
+			
+			li.attr('timestamp',data[k].timestamp)
+			
+			lis.push(li)
+		}
+		
+		lis=lis.sort(function(a,b){ 
+			return a.attr('timestamp') < b.attr('timestamp') ? 1 : -1
+			})
+		ul.append(lis)
+	},'json')
+}
+
+$(document).ready(function(){
+	reload_results();
+})
+</script>
+
 {% endblock %}
