@@ -1,0 +1,16 @@
+{% load i18n %}
+<html>
+<head>
+	<title>{{title}}</title>
+	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+</head>
+<body>
+<h1>{% trans "A Pinch of Pepper" %}</h1>
+
+<div class="content">{% block content %}Fill with your content{% endblock %}</div>
+
+<div class="footer">
+(C) 2013 by <a href="http://www.coralbits.com/">Coralbits S.L.</a>.
+</div>
+</body>
+</html>

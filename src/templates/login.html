@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+{% if error %}<div class="error">{{error}}</div>{% endif %}
+<div class="login">
+<form method="post">
+<input type="text" name="username" placeholder="{% trans "Username" %}">
+<input type="password" name="password" placeholder="{% trans "Password" %}">
+<input type="submit">
+</form>
+</div>
+{% endblock %}

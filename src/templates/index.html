@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+{% if result %}
+<h2>{% trans "Last execution result:" %} {{result}}</h2>
+{% endif %}
+
+<h2>{% trans "Test nr1 "%}</h2>
+<form method="post">
+<input type="hidden" name="test" value="1">
+<input type="submit" name="run" value="Run">
+</form>
+{% endblock %}
