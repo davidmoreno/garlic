@@ -5,7 +5,7 @@ echo "This is a simple test. Actually random"
 sleep 3
 
 RND=$( od -d -N1 -An /dev/urandom )
-if [ "$(( $RND > 127 ))" = 1 ]; then
+if [ "$(( $RND > 64 ))" = 1 ]; then
 	echo "Error!!!"
 	exit 1
 else

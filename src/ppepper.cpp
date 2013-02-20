@@ -200,38 +200,68 @@ public:
 			write(fd,tmp,strlen(tmp));
 			close(fd);
 			
+			int fd_stderr=dup(2);
+			stderr=fdopen(fd_stderr,"w");
+			int ok;
+			
 			chdir(configdir.c_str());
-			close(0);
-			close(1);
-			close(2);
+			
+			{ // Run of the test command, close all fds, open output to result file, close all at the end.
+				close(0);
+				close(1);
+				close(2);
 
-			fd=open("/dev/null", O_RDONLY);
-			assert(fd==0);
-			fd=open( (basefilename+".output").c_str(), O_WRONLY|O_CREAT, 0666);
-			assert(fd==1);
-			fd=dup2(1,2);
+				fd=open("/dev/null", O_RDONLY);
+				assert(fd==0);
+				fd=open( (basefilename+".output").c_str(), O_WRONLY|O_CREAT, 0666);
+				assert(fd==1);
+				fd=dup2(1,2);
+				assert(fd==2);
+				
+				ok=system("./test.sh");
+				
+				fd=close(0);
+				assert(fd==0);
+				fd=close(1);
+				assert(fd==0);
+				fd=close(2);
+				assert(fd==0);
+			}
+
+			fd=dup2(fd_stderr,2);
 			assert(fd==2);
+			fclose(stderr);
+			stderr=fdopen(2,"w");
 			
-			int ok=system("./test.sh");
-			fd=close(0);
-			assert(fd==0);
+			ONION_DEBUG("Test finished. Result %d", ok);
 			
-			assert(fd>=0);
 			snprintf(tmp,16,"%d",ok);
-			
 			fd=open((basefilename+".result").c_str(), O_WRONLY|O_CREAT, 0666);
 			write(fd,tmp,strlen(tmp));
 			close(fd);
-			
-			if (ok!=0)
-				send_email_error(now);
-			else
-				send_email_ok(now);
 
-			fd=close(1);
-			assert(fd==0);
-			fd=close(2);
-			assert(fd==0);
+			{ // Do something with the results.
+				std::string error_on_last_file(configdir+"/log/error_on_last");
+				ONION_DEBUG("Error on last file: %s", error_on_last_file.c_str());
+				fd=close(0); // Close just in case
+				fd=open((basefilename+".output").c_str(), O_RDONLY);
+				assert(fd==0);
+				if (ok!=0){
+					ONION_DEBUG("Error! Execute: %s", ini.get<std::string>("signals.on_error").c_str());
+					system(ini.get<std::string>("signals.on_error").c_str());
+					fd=open(error_on_last_file.c_str(),O_WRONLY|O_CREAT, 0666);
+					assert(fd>=0);
+					close(fd);
+				}
+				else if (access(error_on_last_file.c_str(), F_OK)!=-1){
+					ONION_DEBUG("Success after many errors! Execute: %s", ini.get<std::string>("signals.on_back_to_normal").c_str());
+					system(ini.get<std::string>("signals.on_back_to_normal").c_str());
+					unlink(error_on_last_file.c_str());
+				}
+				fd=close(0);
+				assert(fd==0);
+			}
+
 			
 			exit(ok);
 		}

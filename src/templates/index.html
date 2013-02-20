@@ -11,7 +11,7 @@
 <input type="submit" name="run" value="Run">
 </form>
 
-<a href="/index">{% trans "Reload" %}</a>
+<a id="reload" href="javascript:reload_results()">{% trans "Reload" %}</a>
 
 <h2>{% trans "Latest executions" %}</h2>
 
@@ -20,8 +20,11 @@
 
 <script>
 reload_results = function(){
+	var pollingd=false;
 	$.get('/results', function(data){
+		do_poll=false;
 		var ul=$('#results')
+		ul.html('')
 		var lis=[]
 		for (var k in data){
 			var li=$('<li>').html($('<a>').text(data[k].name).attr('href','/result/'+k))
@@ -29,8 +32,10 @@ reload_results = function(){
 			
 			if (data[k].result==0)
 				li.addClass("ok");
-			else if (data[k].running)
+			else if (data[k].running){
 				li.addClass("running");
+				do_poll=true;
+			}
 			else
 				li.addClass("error");
 			
@@ -43,11 +48,19 @@ reload_results = function(){
 			return a.attr('timestamp') < b.attr('timestamp') ? 1 : -1
 			})
 		ul.append(lis)
+		
+		if (do_poll && !pollingd)
+			pollingd=setTimeout(reload_results, 1000);
+		if (!do_poll && pollingd){
+			clearInterval(pollingd)
+			pollingd=false;
+		}
 	},'json')
 }
 
 $(document).ready(function(){
 	reload_results();
+	$('#reload').focus()
 })
 </script>
 
