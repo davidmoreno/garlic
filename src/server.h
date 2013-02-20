@@ -11,12 +11,14 @@
 #include <onion/onion.hpp>
 
 #include "inireader.h"
+#include "test.h"
 
 namespace PPepper{
 	class Server{
 	private:
 		std::string configdir;
 		IniReader ini;
+		Test test;
 	public:
 		Server(const std::string &configdir);
 		onion_connection_status login(Onion::Request &req, Onion::Response &res);
@@ -27,7 +29,6 @@ namespace PPepper{
 		onion_connection_status result(Onion::Request &req, Onion::Response &res);
 			
 	private:
-		void setup_env();
 		std::string run_test();
 	};
 }

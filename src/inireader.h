@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace PPepper{
 	class PPepperPrivate;
@@ -19,7 +20,7 @@ namespace PPepper{
 	*/
 	class IniReader{
 	private:
-			PPepperPrivate *d;
+		std::shared_ptr<PPepperPrivate> d;
 	public:
 		IniReader();
 		~IniReader();

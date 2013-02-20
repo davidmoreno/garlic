@@ -19,12 +19,11 @@ public:
 
 IniReader::IniReader()
 {
-	d=new PPepperPrivate();
+	d=std::make_shared<PPepperPrivate>();
 }
 
 IniReader::~IniReader()
 {
-	delete d;
 }
 
 void IniReader::open(const std::string& inifile)
