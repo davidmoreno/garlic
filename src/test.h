@@ -18,9 +18,10 @@ namespace PPepper{
 	public:
 		Test();
 		void setIniReader(IniReader &reader);
+		void setIniFile(const std::string &inifile);
 		void setDefaultdir(const std::string &defaultdir);
 		
-		void check_and_run();
+		bool check_and_run();
 		bool check();
 		int run(const std::string &name);
 

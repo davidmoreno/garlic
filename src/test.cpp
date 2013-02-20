@@ -24,19 +24,26 @@ void Test::setIniReader(IniReader &reader){
 	ini=reader;
 }
 
+void Test::setIniFile(const std::string& inifile)
+{
+	ini.open(inifile);
+}
+
 void Test::setDefaultdir(const std::string& defaultdir)
 {
 	this->defaultdir=defaultdir;
 }
 
 
-void Test::check_and_run()
+bool Test::check_and_run()
 {
 	if (check()){
 		char now[32];
 		snprintf(now,sizeof(now),"%ld",time(nullptr));
 		run(now);
+		return true;
 	}
+	return false;
 }
 
 bool Test::check()
@@ -56,6 +63,7 @@ int Test::run(const std::string &testname)
 	std::string basefilename=defaultdir+"/log/"+testname;
 	
 	ONION_DEBUG("Debug to %s",(basefilename+".[pid,output,result]").c_str());
+	ONION_DEBUG("Output to %s",(basefilename+".output").c_str());
 
 	int fd;
 	fd=open((basefilename+".pid").c_str(), O_WRONLY|O_CREAT, 0666);

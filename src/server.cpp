@@ -12,19 +12,14 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
 #include <time.h>
 #include <assert.h>
 #include <dirent.h>
 #include <vector>
-#include <iostream>
-#include <fstream>
 #include <sstream>
-#include <sys/stat.h>
 
 #include "server.h"
+#include "utils.h"
 
 using namespace Onion;
 using namespace PPepper;
@@ -33,23 +28,7 @@ extern "C" void login_html(onion_dict *context, onion_response *res);
 extern "C" void index_html(onion_dict *context, onion_response *res);
 extern "C" void style_css(onion_dict *context, onion_response *res);
 
-static std::string file2string(const std::string &filename){
-	std::ifstream ifs(filename);
-	if (!ifs.is_open())
-		throw(std::exception());
-	return std::string ( (std::istreambuf_iterator<char>(ifs) ),
-											(std::istreambuf_iterator<char>()    ) );
-}
-
-Server::Server(const std::string &configdir){
-	char *basefilename_c;
-	basefilename_c=realpath(configdir.c_str(),NULL);
-	if (basefilename_c==NULL){
-		ONION_ERROR("Error getting realpath %s: %s",configdir.c_str(), strerror(errno));
-		throw(std::exception());
-	}
-	this->configdir=basefilename_c;
-	free(basefilename_c);
+Server::Server(const std::string &configdir_) : configdir(realpath(configdir_)){
 	
 	test.setDefaultdir(this->configdir);
 	
