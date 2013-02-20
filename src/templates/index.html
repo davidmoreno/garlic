@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
+<h1>{{title}}</h1>
 {% if test_name %}
 <h2>{% trans "Executed test:" %} {{test_name}}</h2>
 {% endif %}
