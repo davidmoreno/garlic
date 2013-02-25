@@ -1,5 +1,5 @@
-A Pinch of Pepper
-=================
+Garlic
+======
 
 This is a Jenkins like minimal testing server. 
 
@@ -45,8 +45,8 @@ Requirements
 Compile
 -------
 
-	git clone https://github.com/davidmoreno/ppepper.git
-	cd ppepper
+	git clone https://github.com/davidmoreno/garlic.git
+	cd garlic
   mkdir build
   
 	cd build
@@ -69,8 +69,8 @@ Setup
 	#cwd= # where to chdir, normally to test dir.
 
 	[scripts]
-	on_back_to_normal=mail -s "PPepper back to normal" "dmoreno@coralbits.com"
-	on_error=mail -s "PPepper error" "dmoreno@coralbits.com"
+	on_back_to_normal=mail -s "Garlic back to normal" "dmoreno@coralbits.com"
+	on_error=mail -s "Garlic error" "dmoreno@coralbits.com"
 
 	#check=git fetch && [ $(git diff origin/master | wc -l) = 0 ]
 	check=false
@@ -84,9 +84,9 @@ Setup
 	
 	crontab -e
 
-		00 * * * * ppepper PATH_TO_CONFIG --check-and-run
+		00 * * * * garlic PATH_TO_CONFIG --check-and-run
 
 4. Run the webserver:
 
-	ppepper PATH_TO_CONFIG 
+	garlic PATH_TO_CONFIG 
 
