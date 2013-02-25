@@ -89,17 +89,19 @@ onion_connection_status Server::index(Onion::Request &req, Onion::Response &res)
 onion_connection_status Server::results_json(Onion::Request &req, Onion::Response &res){
 	if (!req.session().has("loggedin"))
 		return onion_shortcut_redirect("/",req.c_handler(), res.c_handler());
+	std::vector<std::string> files;
 	
 	DIR *dir=opendir((configdir+"/log").c_str());
-	struct dirent *ent;
 
-	std::vector<std::string> files;
-	while ( (ent=readdir(dir)) ){
-		std::string filename=ent->d_name;
-		if (boost::algorithm::ends_with(filename,".pid"))
-			files.push_back(filename.substr(0,filename.length()-4));
+	if (dir){
+		struct dirent *ent;
+		while ( (ent=readdir(dir)) ){
+			std::string filename=ent->d_name;
+			if (boost::algorithm::ends_with(filename,".pid"))
+				files.push_back(filename.substr(0,filename.length()-4));
+		}
+		closedir(dir);
 	}
-	closedir(dir);
 	
 	std::sort(files.begin(), files.end(),[](const std::string &A, const std::string &B){ return B<A; });
 	

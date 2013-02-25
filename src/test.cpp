@@ -59,7 +59,7 @@ int Test::run(const std::string &testname)
 	setup_env();
 	char tmp[1024];
 
-	mkdir((defaultdir+"/log/").c_str(), 0666);
+	mkdir((defaultdir+"/log/").c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	std::string basefilename=defaultdir+"/log/"+testname;
 	
 	ONION_DEBUG("Debug to %s",(basefilename+".[pid,output,result]").c_str());
