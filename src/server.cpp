@@ -28,12 +28,8 @@ extern "C" void login_html(onion_dict *context, onion_response *res);
 extern "C" void index_html(onion_dict *context, onion_response *res);
 extern "C" void style_css(onion_dict *context, onion_response *res);
 
-Server::Server(const std::string &configdir_) : configdir(realpath(configdir_)){
-	
-	test.setDefaultdir(this->configdir);
-	
-	ini.open(this->configdir+"/config.ini");
-	test.setIniReader(ini);
+Server::Server(IniReader &ini_) : ini(ini_), test(ini_){
+	logdir=ini.get("logpath", ini.getPath() + "/log/");
 }
 
 onion_connection_status Server::login(Request &req, Response &res){
@@ -91,7 +87,7 @@ onion_connection_status Server::results_json(Request &req, Response &res){
 		return onion_shortcut_redirect("/",req.c_handler(), res.c_handler());
 	std::vector<std::string> files;
 	
-	DIR *dir=opendir((configdir+"/log").c_str());
+	DIR *dir=opendir(logdir.c_str());
 
 	if (dir){
 		struct dirent *ent;
@@ -123,7 +119,7 @@ onion_connection_status Server::results_json(Request &req, Response &res){
 		data.add("timestamp",name);
 		
 		try{
-			auto result=file2string(configdir+"/log/"+name+".result");
+			auto result=file2string(logdir+name+".result");
 			data.add("result",result);
 		}
 		catch(...){ // if no result, still running.. unless something went bad.
@@ -141,7 +137,7 @@ onion_connection_status Server::result(Request &req, Response &res){
 	if (!req.session().has("loggedin"))
 		return onion_shortcut_redirect("/",req.c_handler(), res.c_handler());
 	
-	std::string filename=(configdir+"/log/"+req.query()["1"]+".output").c_str();
+	std::string filename=(logdir+req.query()["1"]+".output").c_str();
 	if (filename.find("..")!=std::string::npos){
 		ONION_WARNING("Trying to read out of log dir: %s", filename.c_str());
 		return OCS_INTERNAL_ERROR;

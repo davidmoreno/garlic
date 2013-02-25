@@ -16,11 +16,11 @@
 namespace Garlic{
 	class Server{
 	private:
-		std::string configdir;
+		std::string logdir;
 		IniReader ini;
 		Test test;
 	public:
-		Server(const std::string &configdir);
+		Server(IniReader &ini);
 		onion_connection_status login(Onion::Request &req, Onion::Response &res);
 		onion_connection_status style_css(Onion::Request &req, Onion::Response &res);
 		onion_connection_status logout(Onion::Request &req, Onion::Response &res);

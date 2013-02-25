@@ -16,15 +16,11 @@ namespace Garlic{
 		IniReader ini;
 		std::string defaultdir;
 	public:
-		Test();
-		void setIniReader(IniReader &reader);
-		void setIniFile(const std::string &inifile);
-		void setDefaultdir(const std::string &defaultdir);
+		Test(IniReader &reader);
 		
 		bool check_and_run();
 		bool check();
 		int run(const std::string &name);
-
 	private:
 		void setup_env();
 	};

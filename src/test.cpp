@@ -16,24 +16,10 @@
 
 using namespace Garlic;
 
-Test::Test()
+Test::Test(IniReader &reader) : ini(reader)
 {
+	
 }
-
-void Test::setIniReader(IniReader &reader){
-	ini=reader;
-}
-
-void Test::setIniFile(const std::string& inifile)
-{
-	ini.open(inifile);
-}
-
-void Test::setDefaultdir(const std::string& defaultdir)
-{
-	this->defaultdir=defaultdir;
-}
-
 
 bool Test::check_and_run()
 {
@@ -58,9 +44,10 @@ int Test::run(const std::string &testname)
 {
 	setup_env();
 	char tmp[1024];
+	const std::string logdir=ini.get("logpath", ini.getPath()+ "/log/");
 
-	mkdir((defaultdir+"/log/").c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	std::string basefilename=defaultdir+"/log/"+testname;
+	mkdir(logdir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	std::string basefilename=logdir+testname;
 	
 	ONION_DEBUG("Debug to %s",(basefilename+".[pid,output,result]").c_str());
 	ONION_DEBUG("Output to %s",(basefilename+".output").c_str());
@@ -113,7 +100,7 @@ int Test::run(const std::string &testname)
 	close(fd);
 
 	{ // Do something with the results.
-		std::string error_on_last_file(defaultdir+"/log/error_on_last");
+		std::string error_on_last_file(logdir+"/error_on_last");
 		fd=close(0); // Close just in case
 		fd=open((basefilename+".output").c_str(), O_RDONLY);
 		assert(fd==0);
@@ -144,7 +131,7 @@ void Test::setup_env(){
 		ONION_DEBUG("Set env %s=%s",k.c_str(), ini.get("env."+k).c_str());
 		setenv(k.c_str(), ini.get("env."+k).c_str(), 1);
 	}
-	ONION_DEBUG("Chdir to %s",ini.get("global.cwd",defaultdir).c_str());
-	chdir(ini.get("global.cwd",defaultdir).c_str());
+	ONION_DEBUG("Chdir to %s",ini.get("global.cwd",ini.getPath()).c_str());
+	chdir(ini.get("global.cwd",ini.getPath()).c_str());
 }
 

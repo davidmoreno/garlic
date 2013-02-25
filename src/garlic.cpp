@@ -12,6 +12,7 @@
 
 #include "server.h"
 #include "utils.h"
+#include "inireader.h"
 
 using namespace Onion;
 using namespace Garlic;
@@ -28,12 +29,9 @@ int main(int argc, char **argv){
 	}
 	if (argc==3){
 		if (strcmp(argv[2],"--check-and-run")==0){
-			Test test;
-			std::string path(realpath(argv[1]));
-			test.setDefaultdir(path);
-			test.setIniFile(path+"/config.ini");
-			
-			int ok=test.check_and_run();
+			IniReader ini(argv[1]);
+			Test test( ini );
+			bool ok=test.check_and_run();
 			exit(ok);
 		}
 		else{
@@ -42,7 +40,12 @@ int main(int argc, char **argv){
 	}
 	
 	::Onion::Onion o;
-	Server garlic(argv[1]);
+	IniReader ini(argv[1]);
+	Server garlic(ini);
+	ONION_INFO("Garlic at path %s, listening at %s:%s", ini.getPath().c_str(), ini.get("server.address","::").c_str(), ini.get("server.port","8000").c_str());
+	
+	o.setPort(ini.get("server.port","8000"));
+	o.setHostname(ini.get("server.address","8000"));
 	
 	Url root(o);
 	

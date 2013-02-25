@@ -22,14 +22,14 @@ namespace Garlic{
 	private:
 		std::shared_ptr<GarlicPrivate> d;
 	public:
-		IniReader();
+		IniReader(const std::string &inifile);
 		~IniReader();
-
-		void open(const std::string &inifile);
 		
-		std::string get(const std::string &field);
-		std::string get(const std::string &field, const std::string &defaultvalue);
-		std::vector<std::string> get_keys(const std::string &group);
+		std::string get(const std::string &field) const;
+		std::string get(const std::string &field, const std::string &defaultvalue) const;
+		std::vector<std::string> get_keys(const std::string &group) const;
+		
+		std::string getPath() const;
 	};
 }
 
