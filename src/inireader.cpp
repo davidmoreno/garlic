@@ -45,8 +45,9 @@ std::vector<std::string> IniReader::get_keys(const std::string &group)
 {
 	std::vector<std::string> ret;
 	auto g=d->ini.get_child(group);
-	for(const auto &k:g){
-		ret.push_back(k.first);
+	auto I=g.begin(), endI=g.end();
+	for(;I!=endI;++I){
+		ret.push_back((*I).first);
 	}
 	return ret;
 }

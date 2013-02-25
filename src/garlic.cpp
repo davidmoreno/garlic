@@ -41,7 +41,7 @@ int main(int argc, char **argv){
 		}
 	}
 	
-	Onion::Onion o;
+	::Onion::Onion o;
 	Server garlic(argv[1]);
 	
 	Url root(o);
