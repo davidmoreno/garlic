@@ -44,10 +44,16 @@ int Test::run(const std::string &testname)
 {
 	setup_env();
 	char tmp[1024];
-	const std::string logdir=ini.get("logpath", ini.getPath()+ "/log/");
+	const std::string logpath=ini.get("logpath", ini.getPath()+ "/log/");
 
-	mkdir(logdir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	std::string basefilename=logdir+testname;
+	ONION_DEBUG("Log path is %s", logpath.c_str());
+	{
+		int err_mkdir=mkdir(logpath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		if (err_mkdir <0 && err_mkdir != -EEXIST){
+			ONION_ERROR("Error creating log path %s: %s", logpath.c_str(), strerror(errno));
+		}
+	}
+	std::string basefilename=logpath+testname;
 	
 	ONION_DEBUG("Debug to %s",(basefilename+".[pid,output,result]").c_str());
 	ONION_DEBUG("Output to %s",(basefilename+".output").c_str());
@@ -100,7 +106,7 @@ int Test::run(const std::string &testname)
 	close(fd);
 
 	{ // Do something with the results.
-		std::string error_on_last_file(logdir+"/error_on_last");
+		std::string error_on_last_file(logpath+"/error_on_last");
 		fd=close(0); // Close just in case
 		fd=open((basefilename+".output").c_str(), O_RDONLY);
 		assert(fd==0);
@@ -124,14 +130,19 @@ int Test::run(const std::string &testname)
 }
 
 void Test::setup_env(){
-	auto ks=ini.get_keys("env");
-	auto I=ks.begin(), endI=ks.end();
-	for(;I!=endI;++I){
-		const auto &k=*I;
-		ONION_DEBUG("Set env %s=%s",k.c_str(), ini.get("env."+k).c_str());
-		setenv(k.c_str(), ini.get("env."+k).c_str(), 1);
+	chdir(ini.getPath().c_str());
+	try{
+		auto ks=ini.get_keys("env");
+		auto I=ks.begin(), endI=ks.end();
+		for(;I!=endI;++I){
+			const auto &k=*I;
+			ONION_DEBUG("Set env %s=%s",k.c_str(), ini.get("env."+k).c_str());
+			setenv(k.c_str(), ini.get("env."+k).c_str(), 1);
+		}
+		ONION_DEBUG("Chdir to %s",ini.get("global.cwd",ini.getPath()).c_str());
 	}
-	ONION_DEBUG("Chdir to %s",ini.get("global.cwd",ini.getPath()).c_str());
-	chdir(ini.get("global.cwd",ini.getPath()).c_str());
+	catch(...){
+		// pass FIXME better exception handling.
+	}
 }
 
