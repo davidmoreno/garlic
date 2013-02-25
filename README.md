@@ -30,16 +30,19 @@ Requirements
 ------------
 
  * Onion cpp branch:
-		git clone https://github.com/davidmoreno/onion.git
-		cd onion
-		git checkout origin/cpp -b cpp
-		
-		mkdir build
-		cd build
-		cmake ..
-		make
-		sudo make install
-		
+
+	```
+	git clone https://github.com/davidmoreno/onion.git
+	cd onion
+	git checkout origin/cpp -b cpp
+	
+	mkdir build
+	cd build
+	cmake ..
+	make
+	sudo make install
+	```
+
  * Boost
 
 Compile
@@ -60,6 +63,7 @@ Setup
 1. Create directory for your tests
 2. Create a config.ini file with contents similar to this, but tailored to your needs:
 
+	```
 	[global]
 	username=coralbits
 	password=coralbits
@@ -79,7 +83,8 @@ Setup
 	[env]
 	FROM=dmoreno@coralbits.com
 	TO=dmoreno@coralbits.com
-
+	```
+	
 3. Add to cron to check each hour (optional):
 	
 	crontab -e
