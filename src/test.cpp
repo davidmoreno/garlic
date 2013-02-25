@@ -14,7 +14,7 @@
 #include <string.h>
 #include "test.h"
 
-using namespace PPepper;
+using namespace Garlic;
 
 Test::Test()
 {

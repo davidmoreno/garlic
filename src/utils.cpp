@@ -12,7 +12,7 @@
 
 #include "utils.h"
 
-std::string PPepper::realpath(const std::string& path)
+std::string Garlic::realpath(const std::string& path)
 {
 	char *basefilename_c;
 	basefilename_c=::realpath(path.c_str(),NULL);
@@ -26,7 +26,7 @@ std::string PPepper::realpath(const std::string& path)
 	return ret;
 }
 
-std::string PPepper::file2string(const std::string &filename){
+std::string Garlic::file2string(const std::string &filename){
 	std::ifstream ifs(filename);
 	if (!ifs.is_open())
 		throw(std::exception());

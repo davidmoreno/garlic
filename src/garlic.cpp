@@ -14,10 +14,10 @@
 #include "utils.h"
 
 using namespace Onion;
-using namespace PPepper;
+using namespace Garlic;
 
 void usage(){
-	ONION_ERROR("Usage: ppepper <configdir> [--check-and-run]");
+	ONION_ERROR("Usage: garlic <configdir> [--check-and-run]");
 	exit(1);
 }
 
@@ -42,15 +42,15 @@ int main(int argc, char **argv){
 	}
 	
 	Onion::Onion o;
-	Server ppepper(argv[1]);
+	Server garlic(argv[1]);
 	
 	Url root(o);
 	
-	root.add("",&ppepper, &Server::login);
-	root.add("style.css",&ppepper, &Server::style_css);
-	root.add("index",&ppepper, &Server::index);
-	root.add("results",&ppepper, &Server::results_json);
-	root.add("^result/(.*)$",&ppepper, &Server::result);
+	root.add("",&garlic, &Server::login);
+	root.add("style.css",&garlic, &Server::style_css);
+	root.add("index",&garlic, &Server::index);
+	root.add("results",&garlic, &Server::results_json);
+	root.add("^result/(.*)$",&garlic, &Server::result);
 	
 	o.listen();
 }

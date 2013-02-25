@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#ifndef __PPEPPER__UTILS_H__
-#define __PPEPPER__UTILS_H__
+#ifndef __GARLIC__UTILS_H__
+#define __GARLIC__UTILS_H__
 
 #include <string>
 
-namespace PPepper{
+namespace Garlic{
 	std::string realpath(const std::string &path);
 	std::string file2string(const std::string &filename);
 }

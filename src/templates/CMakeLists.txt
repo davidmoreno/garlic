@@ -26,4 +26,4 @@ add_custom_command(
    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/style.css
    )
 
-add_library(ppepper_templates STATIC base_html.c login_html.c index_html.c style_css.c)
+add_library(garlic_templates STATIC base_html.c login_html.c index_html.c style_css.c)

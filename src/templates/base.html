@@ -1,14 +1,15 @@
 {% load i18n %}
 <html>
 <head>
-	<title>A Pinch of Pepper -- {{title}}</title>
+	<title>Garlic -- {{title}}</title>
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<style>
 	@import "/style.css";
 	</style>
 </head>
 <body>
-<h1><a href="/">{% trans "A Pinch of Pepper" %}</a></h1>
+<h1><a href="/">{% trans "Garlic testing" %}</a></h1>
+<h2>{% trans "Bad for taste, good for health." %}</h2>
 
 <div class="content">{% block content %}Fill with your content{% endblock %}</div>
 

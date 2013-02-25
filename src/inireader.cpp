@@ -10,16 +10,16 @@
 
 #include "inireader.h"
 
-using namespace PPepper;
+using namespace Garlic;
 
-class PPepper::PPepperPrivate{
+class Garlic::GarlicPrivate{
 public:
 	boost::property_tree::ptree ini;
 };
 
 IniReader::IniReader()
 {
-	d=std::make_shared<PPepperPrivate>();
+	d=std::make_shared<GarlicPrivate>();
 }
 
 IniReader::~IniReader()

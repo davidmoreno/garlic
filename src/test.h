@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#ifndef __PPEPPER__TEST_H__
-#define __PPEPPER__TEST_H__
+#ifndef __GARLIC__TEST_H__
+#define __GARLIC__TEST_H__
 
 #include "inireader.h"
 
-namespace PPepper{
+namespace Garlic{
 	class Test{
 	private:
 		IniReader ini;

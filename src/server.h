@@ -5,15 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#ifndef __PPEPPER_SERVER_H__
-#define __PPEPPER_SERVER_H__
+#ifndef __GARLIC_SERVER_H__
+#define __GARLIC_SERVER_H__
 
 #include <onion/onion.hpp>
 
 #include "inireader.h"
 #include "test.h"
 
-namespace PPepper{
+namespace Garlic{
 	class Server{
 	private:
 		std::string configdir;

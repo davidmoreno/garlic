@@ -5,22 +5,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#ifndef __PPEPPER__INI_H__
-#define __PPEPPER__INI_H__
+#ifndef __GARLIC__INI_H__
+#define __GARLIC__INI_H__
 
 #include <string>
 #include <vector>
 #include <memory>
 
-namespace PPepper{
-	class PPepperPrivate;
+namespace Garlic{
+	class GarlicPrivate;
 	
 	/**
 	* @short Wrapper around boost property_tree, to make it faster compile and easy use.
 	*/
 	class IniReader{
 	private:
-		std::shared_ptr<PPepperPrivate> d;
+		std::shared_ptr<GarlicPrivate> d;
 	public:
 		IniReader();
 		~IniReader();
