@@ -36,7 +36,7 @@ Server::Server(const std::string &configdir_) : configdir(realpath(configdir_)){
 	test.setIniReader(ini);
 }
 
-onion_connection_status Server::login(Onion::Request &req, Onion::Response &res){
+onion_connection_status Server::login(Request &req, Response &res){
 	if (req.session().has("loggedin"))
 		return onion_shortcut_redirect("/index",req.c_handler(), res.c_handler());
 	Dict context;
@@ -59,19 +59,19 @@ onion_connection_status Server::login(Onion::Request &req, Onion::Response &res)
 	return OCS_PROCESSED;
 }
 
-onion_connection_status Server::style_css(Onion::Request &req, Onion::Response &res){
-	::style_css(nullptr, res.c_handler());
+onion_connection_status Server::style_css(Request &req, Response &res){
+	::style_css(NULL, res.c_handler());
 	return OCS_PROCESSED;
 }
 
-onion_connection_status Server::logout(Onion::Request &req, Onion::Response &res){
+onion_connection_status Server::logout(Request &req, Response &res){
 	if (req.session().has("loggedin")){
 		req.session().remove("loggedin");
 	}
 	return onion_shortcut_redirect("/",req.c_handler(), res.c_handler());
 }
 
-onion_connection_status Server::index(Onion::Request &req, Onion::Response &res){
+onion_connection_status Server::index(Request &req, Response &res){
 	if (!req.session().has("loggedin"))
 		return onion_shortcut_redirect("/",req.c_handler(), res.c_handler());
 	
@@ -86,7 +86,7 @@ onion_connection_status Server::index(Onion::Request &req, Onion::Response &res)
 	return OCS_PROCESSED;
 }
 
-onion_connection_status Server::results_json(Onion::Request &req, Onion::Response &res){
+onion_connection_status Server::results_json(Request &req, Response &res){
 	if (!req.session().has("loggedin"))
 		return onion_shortcut_redirect("/",req.c_handler(), res.c_handler());
 	
@@ -101,12 +101,14 @@ onion_connection_status Server::results_json(Onion::Request &req, Onion::Respons
 	}
 	closedir(dir);
 	
-	std::sort(files.begin(), files.end(),[](const std::string &A, const std::string &B){ return B<A; });
+	std::sort(files.begin(), files.end()); //,[](const std::string &A, const std::string &B){ return B<A; });
 	
 	Dict ret;
 	int n=8;
 	int count=files.size();
-	for (const std::string &name: files){
+	std::vector<std::string>::iterator I=files.begin(), endI=files.end();
+	for (;I!=endI;++I){
+		const std::string &name=*I;
 		if (n--==0)
 			break;
 			
@@ -133,7 +135,7 @@ onion_connection_status Server::results_json(Onion::Request &req, Onion::Respons
 	return OCS_PROCESSED;
 }
 
-onion_connection_status Server::result(Onion::Request &req, Onion::Response &res){
+onion_connection_status Server::result(Request &req, Response &res){
 	if (!req.session().has("loggedin"))
 		return onion_shortcut_redirect("/",req.c_handler(), res.c_handler());
 	
@@ -150,7 +152,7 @@ onion_connection_status Server::result(Onion::Request &req, Onion::Response &res
 
 std::string Server::run_test(){
 	char now[32];
-	snprintf(now,sizeof(now),"%ld",time(nullptr));
+	snprintf(now,sizeof(now),"%ld",time(NULL));
 
 	if (fork()==0){ // Another process.
 		int ok=test.run(now);

@@ -39,7 +39,7 @@ bool Test::check_and_run()
 {
 	if (check()){
 		char now[32];
-		snprintf(now,sizeof(now),"%ld",time(nullptr));
+		snprintf(now,sizeof(now),"%ld",time(NULL));
 		run(now);
 		return true;
 	}
@@ -137,7 +137,10 @@ int Test::run(const std::string &testname)
 }
 
 void Test::setup_env(){
-	for(const std::string &k: ini.get_keys("env")){
+	auto ks=ini.get_keys("env");
+	auto I=ks.begin(), endI=ks.end();
+	for(;I!=endI;++I){
+		const auto &k=*I;
 		ONION_DEBUG("Set env %s=%s",k.c_str(), ini.get("env."+k).c_str());
 		setenv(k.c_str(), ini.get("env."+k).c_str(), 1);
 	}

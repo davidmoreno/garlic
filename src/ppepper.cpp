@@ -41,7 +41,7 @@ int main(int argc, char **argv){
 		}
 	}
 	
-	Onion::Onion o;
+	::Onion::Onion o;
 	Server ppepper(argv[1]);
 	
 	Url root(o);
