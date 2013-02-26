@@ -97,7 +97,7 @@ showResult = function(id){
 	out.append( $('<a>').attr('href','/result/'+id).text('{% trans "Get RAW" %}') )
 	
 	$.get('/result/'+id,function(data){
-		var out=$('#output').append('<pre>'+data+'</pre>')
+		var out=$('#output').append($('<pre>').text(data))
 	},'text')
 }
 
