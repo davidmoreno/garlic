@@ -35,10 +35,15 @@ Server::Server(IniReader &ini_) : ini(ini_), test(ini_){
 onion_connection_status Server::login(Request &req, Response &res){
 	if (req.session().has("loggedin"))
 		return onion_shortcut_redirect("/index",req.c_handler(), res.c_handler());
+	if (!ini.has("global.username") || !ini.has("global.password")){
+		req.session().add("loggedin","true");
+		return onion_shortcut_redirect("/index",req.c_handler(), res.c_handler());
+	}
+	
 	Dict context=defaultContext();
 	if (req.post().has("username")){
 		if (req.post().get("username")==ini.get("global.username") && 
-				req.post().get("password")==ini.get("global.username")){
+				req.post().get("password")==ini.get("global.password")){
 			req.session().add("loggedin","true");
 			return onion_shortcut_redirect("/index",req.c_handler(), res.c_handler());
 		}

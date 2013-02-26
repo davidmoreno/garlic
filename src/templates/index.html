@@ -2,21 +2,23 @@
 {% load i18n %}
 {% block content %}
 <div class="leftpanel">
-<h1>{{title}}</h1>
-{% if test_name %}
-<h2>{% trans "Executed test:" %} {{test_name}}</h2>
-{% endif %}
 
-<h2>{% trans "Run now!"%}</h2>
 <form method="post">
 <input type="hidden" name="test" value="1">
 <input type="submit" name="run" value="Run">
 </form>
+
+<h1>{{title}}</h1>
+
+{% if test_name %}
+<h2>{% trans "Executed test:" %} {{test_name}}</h2>
+{% endif %}
+
+<h2><a id="reload" href="javascript:reload_results()">{% trans "Reload" %}</a></h2>
 </div>
 
 <div class="centralpanel">
 
-<a id="reload" href="javascript:reload_results()">{% trans "Reload" %}</a>
 
 <h2>{% trans "Latest executions" %}</h2>
 

@@ -25,6 +25,7 @@ namespace Garlic{
 		IniReader(const std::string &inifile);
 		~IniReader();
 		
+		bool has(const std::string &field) const;
 		std::string get(const std::string &field) const;
 		std::string get(const std::string &field, const std::string &defaultvalue) const;
 		std::vector<std::string> get_keys(const std::string &group) const;

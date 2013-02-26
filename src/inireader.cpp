@@ -52,6 +52,17 @@ std::string IniReader::get(const std::string& field) const
 	return d->ini.get<std::string>(field);
 }
 
+bool IniReader::has(const std::string& field) const
+{
+	try{
+		d->ini.get<std::string>(field);
+		return true;
+	}
+	catch(...){
+		return false;
+	}
+}
+
 std::string IniReader::get(const std::string& field, const std::string& defaultvalue) const
 {
 	return d->ini.get<std::string>(field, defaultvalue);

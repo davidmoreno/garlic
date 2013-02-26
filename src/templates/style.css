@@ -20,7 +20,6 @@ html, body {
 	font-size: 1.5em;
 	box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
 	text-shadow: 1px 1px -1px white;
-	text-align: center;
 }
 .footer{
 	font-family: 'Rokkitt', serif;
@@ -65,6 +64,10 @@ h1, h2{
 	float: right;
 	font-size: 3em;
 	padding-top: 14px;
+	padding-left: 3em;
+}
+.fotd a{
+	font-size: 0.5em;
 }
 
 .icon{
@@ -76,8 +79,9 @@ h1, h2{
 
 #reload{
 	font-family: 'Rokkitt', serif;
-	float: right;
-	margin-top: 1em;
+	margin:1em;
+	text-align: center;
+	display: block;
 }
 
 input[type=text],input[type=password]{
@@ -102,7 +106,6 @@ input[type=submit]:hover{
 }
 input[type=submit]{
 	margin: auto;
-	margin-top: 1.5em;
 	margin-left:10%;
 	font-size: 3em;
 	width: 80%;
@@ -122,7 +125,10 @@ input[type=submit]{
 	background: -ms-linear-gradient(-45deg, rgba(210,255,82,1) 0%,rgba(145,232,66,1) 100%); /* IE10+ */
 	background: linear-gradient(135deg, rgba(210,255,82,1) 0%,rgba(145,232,66,1) 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d2ff52', endColorstr='#91e842',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-	
+}
+
+.login input[type=submit]{
+	margin-top: 1.5em;
 }
 
 .header, .footer{
