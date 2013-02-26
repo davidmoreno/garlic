@@ -4,16 +4,24 @@
 	<title>Garlic -- {{title}}</title>
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<style>
-	@import "/style.css";
+	@import "style.css";
 	</style>
+	<link href='http://fonts.googleapis.com/css?family=Rokkitt:700' rel='stylesheet' type='text/css'>
+	<meta charset="utf-8">
 </head>
 <body>
+<div class="header">
+<div class="fotd">{{fotd}}</div>
 <h1><a href="/">{% trans "Garlic testing" %}</a></h1>
 <h2>{% trans "Bad for taste, good for health." %}</h2>
+</div>
+<div class="wrapper">
+	<div class="content">{% block content %}Fill with your content{% endblock %}</div>
 
-<div class="content">{% block content %}Fill with your content{% endblock %}</div>
-
+	<div class="push"></div>
+</div>
 <div class="footer">
+<div class="shade"></div>
 (C) 2013 by <a href="http://www.coralbits.com/">Coralbits S.L.</a>.
 </div>
 </body>

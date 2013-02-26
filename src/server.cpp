@@ -35,7 +35,7 @@ Server::Server(IniReader &ini_) : ini(ini_), test(ini_){
 onion_connection_status Server::login(Request &req, Response &res){
 	if (req.session().has("loggedin"))
 		return onion_shortcut_redirect("/index",req.c_handler(), res.c_handler());
-	Dict context;
+	Dict context=defaultContext();
 	if (req.post().has("username")){
 		if (req.post().get("username")==ini.get("global.username") && 
 				req.post().get("password")==ini.get("global.username")){
@@ -71,7 +71,7 @@ onion_connection_status Server::index(Request &req, Response &res){
 	if (!req.session().has("loggedin"))
 		return onion_shortcut_redirect("/",req.c_handler(), res.c_handler());
 	
-	Dict context;
+	Dict context=defaultContext();
 	if (req.post().has("run")){
 		std::string test_name=run_test();
 		context.add("test_name",test_name);
@@ -99,10 +99,10 @@ onion_connection_status Server::results_json(Request &req, Response &res){
 		closedir(dir);
 	}
 	
-	std::sort(files.begin(), files.end()); //,[](const std::string &A, const std::string &B){ return B<A; });
+	std::sort(files.begin(), files.end(),[](const std::string &A, const std::string &B){ return B<A; });
 	
 	Dict ret;
-	int n=8;
+	int n=atoi(req.query().get("count","15").c_str());
 	int count=files.size();
 	std::vector<std::string>::iterator I=files.begin(), endI=files.end();
 	for (;I!=endI;++I){
@@ -158,4 +158,12 @@ std::string Server::run_test(){
 		exit(ok);
 	}
 	return now;
+}
+
+Dict Server::defaultContext()
+{
+	Dict ret;
+	ret.add("fotd","😏");
+	
+	return ret;
 }

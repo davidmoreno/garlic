@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
+<div class="leftpanel">
 <h1>{{title}}</h1>
 {% if test_name %}
 <h2>{% trans "Executed test:" %} {{test_name}}</h2>
@@ -11,6 +12,9 @@
 <input type="hidden" name="test" value="1">
 <input type="submit" name="run" value="Run">
 </form>
+</div>
+
+<div class="centralpanel">
 
 <a id="reload" href="javascript:reload_results()">{% trans "Reload" %}</a>
 
@@ -19,7 +23,13 @@
 <ul id="results">
 </ul>
 
+</div>
+
 <script>
+var okicon=$("<span class='icon'>😎</span>");
+var runningicon=$("<span class='icon'>♨</span>");
+var erroricon=$("<span class='icon'>⛈</span>");
+
 reload_results = function(){
 	var pollingd=false;
 	$.get('/results', function(data){
@@ -28,17 +38,23 @@ reload_results = function(){
 		ul.html('')
 		var lis=[]
 		for (var k in data){
-			var li=$('<li>').html($('<a>').text(data[k].name).attr('href','/result/'+k))
-			li.append('<br/>' + (new Date(Number(data[k].timestamp)*1000)) + '<br>Result: ' + data[k].result)
-			
+			var li=$('<li>')
+
+			var a=$('<a>').attr('href','/result/'+k)
+
 			if (data[k].result==0)
-				li.addClass("ok");
+				a.append(okicon.clone()).addClass("ok");
 			else if (data[k].running){
-				li.addClass("running");
+				a.append(runningicon.clone()).addClass("running");
 				do_poll=true;
 			}
 			else
-				li.addClass("error");
+				a.append(erroricon.clone()).addClass("error");
+
+			a.append(data[k].name)
+			a.append('<br/>' + (new Date(Number(data[k].timestamp)*1000)) + '<br>Result: ' + data[k].result)
+			
+			li.append(a)
 			
 			li.attr('timestamp',data[k].timestamp)
 			

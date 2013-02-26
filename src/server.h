@@ -9,6 +9,7 @@
 #define __GARLIC_SERVER_H__
 
 #include <onion/onion.hpp>
+#include <onion/dict.hpp>
 
 #include "inireader.h"
 #include "test.h"
@@ -28,6 +29,8 @@ namespace Garlic{
 		onion_connection_status results_json(Onion::Request &req, Onion::Response &res);
 		onion_connection_status result(Onion::Request &req, Onion::Response &res);
 			
+		
+		Onion::Dict defaultContext();
 	private:
 		std::string run_test();
 	};
