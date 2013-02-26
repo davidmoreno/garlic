@@ -61,6 +61,7 @@ onion_connection_status Server::login(Request &req, Response &res){
 }
 
 onion_connection_status Server::style_css(Request &req, Response &res){
+	res.setHeader("Content-Type","text/css");
 	::style_css(NULL, res.c_handler());
 	return OCS_PROCESSED;
 }

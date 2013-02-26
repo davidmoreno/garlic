@@ -50,6 +50,7 @@ int main(int argc, char **argv){
 	Url root(o);
 	
 	root.add("",&garlic, &Server::login);
+	root.add("logout",&garlic, &Server::logout);
 	root.add("style.css",&garlic, &Server::style_css);
 	root.add("index",&garlic, &Server::index);
 	root.add("results",&garlic, &Server::results_json);
