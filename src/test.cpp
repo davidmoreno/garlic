@@ -64,7 +64,8 @@ int Test::run(const std::string &testname)
 		perror("Cant open pid file");
 	assert(fd>=0);
 	snprintf(tmp,sizeof(tmp),"%d",getpid());
-	write(fd,tmp,strlen(tmp));
+	int w=write(fd,tmp,strlen(tmp));
+	assert(w==(signed)strlen(tmp));
 	close(fd);
 	
 	int fd_stderr=dup(2);
@@ -102,7 +103,8 @@ int Test::run(const std::string &testname)
 	
 	snprintf(tmp,16,"%d",ok);
 	fd=open((basefilename+".result").c_str(), O_WRONLY|O_CREAT, 0666);
-	write(fd,tmp,strlen(tmp));
+	w=write(fd,tmp,strlen(tmp));
+	assert(w==(signed)strlen(tmp));
 	close(fd);
 
 	{ // Do something with the results.
@@ -112,14 +114,20 @@ int Test::run(const std::string &testname)
 		assert(fd==0);
 		if (ok!=0){
 			ONION_DEBUG("Error! Execute: %s", ini.get("scripts.on_error").c_str());
-			system(ini.get("scripts.on_error").c_str());
+			int ok=system(ini.get("scripts.on_error").c_str());
+			if (ok!=0){
+			  ONION_ERROR("Coult not execute on_error script");
+			}
 			fd=open(error_on_last_file.c_str(),O_WRONLY|O_CREAT, 0666);
 			assert(fd>=0);
 			close(fd);
 		}
 		else if (access(error_on_last_file.c_str(), F_OK)!=-1){
 			ONION_DEBUG("Success after many errors! Execute: %s", ini.get("scripts.on_back_to_normal").c_str());
-			system(ini.get("scripts.on_back_to_normal").c_str());
+			ok=system(ini.get("scripts.on_back_to_normal").c_str());
+			if (ok!=0){
+			  ONION_ERROR("Error executing script on_back_to_normal");
+			}
 			unlink(error_on_last_file.c_str());
 		}
 		fd=close(0);
@@ -130,7 +138,10 @@ int Test::run(const std::string &testname)
 }
 
 void Test::setup_env(){
-	chdir(ini.getPath().c_str());
+	int ok=chdir(ini.getPath().c_str());
+	if (ok<0){
+	  ONION_ERROR("Could not chdir to %s: %s", ini.getPath().c_str(), strerror(errno));
+	}
 	try{
 		auto ks=ini.get_keys("env");
 		auto I=ks.begin(), endI=ks.end();
