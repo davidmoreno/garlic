@@ -26,7 +26,7 @@ bool Test::check_and_run()
 	if (check()){
 		char now[32];
 		snprintf(now,sizeof(now),"%ld",time(NULL));
-		run(now);
+		run(0, now);
 		return true;
 	}
 	return false;
@@ -40,7 +40,7 @@ bool Test::check()
 }
 
 
-int Test::run(const std::string &testname)
+int Test::run(int test_id, const std::string &testname)
 {
 	setup_env();
 	char tmp[1024];
@@ -84,7 +84,11 @@ int Test::run(const std::string &testname)
 		fd=dup2(1,2);
 		assert(fd==2);
 		
-		ok=system(ini.get("scripts.test","./test.sh").c_str());
+		if (test_id==0)
+			ok=system(ini.get("scripts.test","./test.sh").c_str());
+		else
+			ok=system(ini.get("scripts.test_"+std::to_string(test_id),"./test.sh").c_str());
+		
 		
 		fd=close(0);
 		assert(fd==0);

@@ -3,10 +3,12 @@
 {% block content %}
 <div class="leftpanel">
 
+{% for test in tests %}
 <form method="post">
-<input type="hidden" name="test" value="1">
-<input type="submit" name="run" value="Run">
+	<input type="hidden" name="test" value="{{test.id}}">
+	<input type="submit" name="run" value="{{test.name}}">
 </form>
+{% endfor %}
 
 <h1>{{title}}</h1>
 
@@ -69,10 +71,10 @@ reload_results = function(){
 		ul.append(lis)
 		
 		if (running){
-			$('[name=run]').attr('disabled','disabled').attr('value','{% trans "Running..." %}')
+			$('[name=run]').attr('disabled','disabled')
 		}
 		else{
-			$('[name=run]').removeAttr('disabled').attr('value','{% trans "Run" %}')
+			$('[name=run]').removeAttr('disabled')
 		}
 		
 		if (running && !pollingd)

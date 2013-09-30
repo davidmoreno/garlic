@@ -10,6 +10,7 @@
 #include <onion/request.hpp>
 #include <onion/shortcuts.h>
 
+#include <string>
 #include <boost/algorithm/string.hpp>
 
 #include <time.h>
@@ -79,10 +80,28 @@ onion_connection_status Server::index(Request &req, Response &res){
 	
 	Dict context=defaultContext();
 	if (req.post().has("run")){
-		std::string test_name=run_test();
+		std::string test_name=run_test(std::stoi(req.post().get("test")));
 		context.add("test_name",test_name);
 	}
 	context.add("title", ini.get("global.name",""));
+	Dict tests;
+	Dict test;
+	test.add("id","0");
+	test.add("name",ini.get("scripts.test_name"));
+	tests.add("0", test);
+
+	for(int i=1;i<1000;i++){
+		auto i_str=std::to_string(i);
+		if (ini.has("scripts.test_"+i_str)){
+			test.remove("id");
+			test.remove("name");
+			test.add("id",i_str);
+			test.add("name",ini.get("scripts.test_name_"+i_str,"Test nr "+i_str));
+			tests.add(i_str, test);
+		}
+	}
+	
+	context.add( "tests", tests );
 	
 	index_html(context.c_handler(), res.c_handler());
 	return OCS_PROCESSED;
@@ -154,12 +173,12 @@ onion_connection_status Server::result(Request &req, Response &res){
 }
 
 
-std::string Server::run_test(){
+std::string Server::run_test(int test_id){
 	char now[32];
 	snprintf(now,sizeof(now),"%ld",time(NULL));
 
 	if (fork()==0){ // Another process.
-		int ok=test.run(now);
+		int ok=test.run(test_id, now);
 		
 		exit(ok);
 	}

@@ -20,7 +20,7 @@ namespace Garlic{
 		
 		bool check_and_run();
 		bool check();
-		int run(const std::string &name);
+		int run(int test_id, const std::string &outfilename);
 	private:
 		void setup_env();
 	};

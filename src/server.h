@@ -32,7 +32,7 @@ namespace Garlic{
 		
 		Onion::Dict defaultContext();
 	private:
-		std::string run_test();
+		std::string run_test(int test_id);
 	};
 }
 
