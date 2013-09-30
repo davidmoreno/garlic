@@ -26,7 +26,7 @@ bool Test::check_and_run()
 	if (check()){
 		char now[32];
 		snprintf(now,sizeof(now),"%ld",time(NULL));
-		run(0, now);
+		run(0, {}, now);
 		return true;
 	}
 	return false;
@@ -34,15 +34,20 @@ bool Test::check_and_run()
 
 bool Test::check()
 {
-	setup_env();
+	std::map<std::string, std::string> extra_env;
+		
+	for(auto &str: ini.get_keys("env-rw")){
+		extra_env[str]=ini.get("env-rw."+str);
+	}
+	setup_env(extra_env);
 	int ok=system(ini.get("scripts.check").c_str());
 	return ok!=0;
 }
 
 
-int Test::run(int test_id, const std::string &testname)
+int Test::run(int test_id,  const std::map<std::string, std::string> &extra_env, const std::string &testname)
 {
-	setup_env();
+	setup_env(extra_env);
 	char tmp[1024];
 	const std::string logpath=ini.get("logpath", ini.getPath()+ "/log/");
 
@@ -141,7 +146,7 @@ int Test::run(int test_id, const std::string &testname)
 	return ok;
 }
 
-void Test::setup_env(){
+void Test::setup_env(const std::map<std::string, std::string> &extra_env){
 	int ok=chdir(ini.getPath().c_str());
 	if (ok<0){
 	  ONION_ERROR("Could not chdir to %s: %s", ini.getPath().c_str(), strerror(errno));
@@ -153,6 +158,9 @@ void Test::setup_env(){
 			const auto &k=*I;
 			ONION_DEBUG("Set env %s=%s",k.c_str(), ini.get("env."+k).c_str());
 			setenv(k.c_str(), ini.get("env."+k).c_str(), 1);
+		}
+		for(auto &pair: extra_env){
+			setenv(pair.first.c_str(), pair.second.c_str(), 1);
 		}
 		ONION_DEBUG("Chdir to %s",ini.get("global.cwd",ini.getPath()).c_str());
 	}

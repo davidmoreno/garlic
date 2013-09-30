@@ -80,28 +80,48 @@ onion_connection_status Server::index(Request &req, Response &res){
 	
 	Dict context=defaultContext();
 	if (req.post().has("run")){
-		std::string test_name=run_test(std::stoi(req.post().get("test")));
+		 std::map<std::string, std::string> extra_env;
+		 
+		for(auto &str: ini.get_keys("env-rw")){
+			extra_env[str]=req.post().get(str, ini.get("env-rw."+str));
+		}
+		
+		std::string test_name=run_test(std::stoi(req.post().get("test")), extra_env);
 		context.add("test_name",test_name);
 	}
 	context.add("title", ini.get("global.name",""));
-	Dict tests;
-	Dict test;
-	test.add("id","0");
-	test.add("name",ini.get("scripts.test_name"));
-	tests.add("0", test);
+	{
+		Dict tests;
+		Dict test;
+		test.add("id","0");
+		test.add("name",ini.get("scripts.test_name"));
+		tests.add("0", test);
 
-	for(int i=1;i<1000;i++){
-		auto i_str=std::to_string(i);
-		if (ini.has("scripts.test_"+i_str)){
-			test.remove("id");
-			test.remove("name");
-			test.add("id",i_str);
-			test.add("name",ini.get("scripts.test_name_"+i_str,"Test nr "+i_str));
-			tests.add(i_str, test);
+		for(int i=1;i<1000;i++){
+			auto i_str=std::to_string(i);
+			if (ini.has("scripts.test_"+i_str)){
+				test.remove("id");
+				test.remove("name");
+				test.add("id",i_str);
+				test.add("name",ini.get("scripts.test_name_"+i_str,"Test nr "+i_str));
+				tests.add(i_str, test);
+			}
 		}
+		
+		context.add( "tests", tests );
 	}
-	
-	context.add( "tests", tests );
+	{
+		Dict env;
+		Dict envs;
+		for(auto &str: ini.get_keys("env-rw")){
+			env.remove("env");
+			env.remove("value");
+			env.add("env", str);
+			env.add("value", ini.get(std::string("env-rw.")+str));
+			envs.add(str, env);
+		}
+		context.add("envs", envs);
+	}
 	
 	index_html(context.c_handler(), res.c_handler());
 	return OCS_PROCESSED;
@@ -173,12 +193,12 @@ onion_connection_status Server::result(Request &req, Response &res){
 }
 
 
-std::string Server::run_test(int test_id){
+std::string Server::run_test(int test_id, const std::map<std::string, std::string> &extra_env){
 	char now[32];
 	snprintf(now,sizeof(now),"%ld",time(NULL));
 
 	if (fork()==0){ // Another process.
-		int ok=test.run(test_id, now);
+		int ok=test.run(test_id, extra_env, now);
 		
 		exit(ok);
 	}

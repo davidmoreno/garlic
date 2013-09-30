@@ -253,3 +253,9 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b2e1ff', end
 pre{
 	font-family: 'Rokkitt', console;
 }
+
+input.envvar{
+	font-size: 1em;
+	margin-top:0;
+	margin-bottom: 1em;
+}

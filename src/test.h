@@ -8,6 +8,9 @@
 #ifndef __GARLIC__TEST_H__
 #define __GARLIC__TEST_H__
 
+#include <map>
+#include <string>
+
 #include "inireader.h"
 
 namespace Garlic{
@@ -20,9 +23,9 @@ namespace Garlic{
 		
 		bool check_and_run();
 		bool check();
-		int run(int test_id, const std::string &outfilename);
+		int run(int test_id, const std::map<std::string, std::string> &extra_env, const std::string &outfilename);
 	private:
-		void setup_env();
+		void setup_env(const std::map<std::string, std::string> &extra_env);
 	};
 }
 

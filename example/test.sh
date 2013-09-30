@@ -1,7 +1,13 @@
 #!/bin/sh
 
 echo "This is a simple test. Actually random"
-echo "Arguments $*"
+echo "Program arguments <$*>"
+echo "Extra ENVVARS"
+
+export
+
+echo " -- "
+
 RND=$( od -d -N1 -An /dev/urandom )
 echo $RND
 

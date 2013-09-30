@@ -3,18 +3,25 @@
 {% block content %}
 <div class="leftpanel">
 
-{% for test in tests %}
-<form method="post">
-	<input type="hidden" name="test" value="{{test.id}}">
-	<input type="submit" name="run" value="{{test.name}}">
-</form>
-{% endfor %}
-
 <h1>{{title}}</h1>
 
 {% if test_name %}
 <h2>{% trans "Executed test:" %} {{test_name}}</h2>
 {% endif %}
+
+{% for env in envs %}
+<b>{{env.env}}</b> <input type="text" class="envvar" name="{{env.env}}" placeholder="{{env.value}}">
+{% endfor %}
+
+{% for test in tests %}
+<form method="post">
+	<input type="hidden" name="test" value="{{test.id}}">
+	<input type="submit" name="run" value="{{test.name}}">
+	{% for env in envs %}
+	<input type="hidden" name="{{env.env}}">
+	{% endfor %}
+</form>
+{% endfor %}
 
 <h2><a id="reload" href="javascript:reload_results()">{% trans "Reload" %}</a></h2>
 </div>
@@ -106,6 +113,10 @@ showResult = function(id){
 $(document).ready(function(){
 	reload_results();
 	$('#reload').focus()
+	$('.envvar').change(function(){
+		var m=$(this)
+		$('[name='+m.attr('name')+']').val(m.val())
+	})
 })
 </script>
 
