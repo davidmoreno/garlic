@@ -28,8 +28,10 @@ std::string Garlic::realpath(const std::string& path)
 
 std::string Garlic::file2string(const std::string &filename){
 	std::ifstream ifs(filename);
-	if (!ifs.is_open())
+	if (!ifs.is_open()){
+// 		ONION_ERROR("Cant open file %s", filename.c_str());
 		throw(std::exception());
+	}
 	return std::string ( (std::istreambuf_iterator<char>(ifs) ),
 											(std::istreambuf_iterator<char>()    ) );
 }

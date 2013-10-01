@@ -120,7 +120,12 @@ onion_connection_status Server::index(Request &req, Response &res){
 	if (ini.has("env-rw")){
 		Dict envs;
 		for(auto &str: ini.get_keys("env-rw")){
-			Dict env({{"env", str},{"value", ini.get(std::string("env-rw.")+str)}});
+			std::string val;
+			if (req.post().has(str))
+				val=req.post().get(str);
+			else
+				val=ini.get(std::string("env-rw.")+str);
+			Dict env({{"env", str},{"value", val}});
 			envs.add(str, env);
 		}
 		context.add("envs", envs);

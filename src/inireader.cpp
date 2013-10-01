@@ -25,7 +25,8 @@ IniReader::IniReader(const std::string& inifile)
 	d=std::make_shared<GarlicPrivate>();
 	boost::property_tree::ini_parser::read_ini(inifile, d->ini);
 	
-	char *path=strdupa(realpath(inifile).c_str());
+	std::string rp=realpath(inifile);
+	char *path=strdupa(rp.c_str());
 	::dirname(path);
 	d->path=path;
 	

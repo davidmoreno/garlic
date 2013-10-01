@@ -9,6 +9,7 @@
 #include <onion/url.hpp>
 #include <onion/log.h>
 #include <string.h>
+#include <signal.h>
 
 #include "server.h"
 #include "utils.h"
@@ -22,6 +23,11 @@ void usage(){
 	exit(1);
 }
 
+::Onion::Onion o;
+void stop_listening(int unused){
+	ONION_WARNING("Stop listening");
+	o.listenStop();
+}
 
 int main(int argc, char **argv){
 	if (argc==1){
@@ -39,7 +45,9 @@ int main(int argc, char **argv){
 		}
 	}
 	
-	::Onion::Onion o;
+	signal(SIGTERM, stop_listening);
+	signal(SIGINT, stop_listening);
+	
 	IniReader ini(argv[1]);
 	Server garlic(ini);
 	ONION_INFO("Garlic at path %s, listening at %s:%s", ini.getPath().c_str(), ini.get("server.address","::").c_str(), ini.get("server.port","8000").c_str());
