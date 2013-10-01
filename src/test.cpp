@@ -35,10 +35,11 @@ bool Test::check_and_run()
 bool Test::check()
 {
 	std::map<std::string, std::string> extra_env;
-		
-	for(auto &str: ini.get_keys("env-rw")){
-		extra_env[str]=ini.get("env-rw."+str);
-	}
+	
+	if (ini.has("env-rw"))
+		for(auto &str: ini.get_keys("env-rw")){
+			extra_env[str]=ini.get("env-rw."+str);
+		}
 	setup_env(extra_env);
 	int ok=system(ini.get("scripts.check").c_str());
 	return ok!=0;
@@ -55,7 +56,7 @@ int Test::run(int test_id,  const std::map<std::string, std::string> &extra_env,
 	{
 		int err_mkdir=mkdir(logpath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		if (err_mkdir <0 && err_mkdir != -EEXIST){
-			ONION_ERROR("Error creating log path %s: %s", logpath.c_str(), strerror(errno));
+			ONION_DEBUG("Error creating log path %s: %s", logpath.c_str(), strerror(errno));
 		}
 	}
 	std::string basefilename=logpath+testname;
@@ -147,25 +148,29 @@ int Test::run(int test_id,  const std::map<std::string, std::string> &extra_env,
 }
 
 void Test::setup_env(const std::map<std::string, std::string> &extra_env){
-	int ok=chdir(ini.getPath().c_str());
+	int ok=0;
+	ok=chdir(ini.getPath().c_str());
+	ONION_DEBUG("Chdir to %s", ini.getPath().c_str());
+	if (ini.has("scripts.chdir")){
+		ok=chdir(ini.get("scripts.chdir").c_str());
+		ONION_DEBUG("Chdir to %s", ini.get("scripts.chdir").c_str());
+	}
 	if (ok<0){
 	  ONION_ERROR("Could not chdir to %s: %s", ini.getPath().c_str(), strerror(errno));
+		return;
 	}
-	try{
-		auto ks=ini.get_keys("env");
-		auto I=ks.begin(), endI=ks.end();
-		for(;I!=endI;++I){
-			const auto &k=*I;
+	
+	if (ini.has("env")){
+		for(const auto &k:ini.get_keys("env")){
 			ONION_DEBUG("Set env %s=%s",k.c_str(), ini.get("env."+k).c_str());
 			setenv(k.c_str(), ini.get("env."+k).c_str(), 1);
 		}
+	}
+	if (extra_env.size()>0){
 		for(auto &pair: extra_env){
+			ONION_DEBUG("Set env %s=%s",pair.first.c_str(), pair.second.c_str());
 			setenv(pair.first.c_str(), pair.second.c_str(), 1);
 		}
-		ONION_DEBUG("Chdir to %s",ini.get("global.cwd",ini.getPath()).c_str());
-	}
-	catch(...){
-		// pass FIXME better exception handling.
 	}
 }
 

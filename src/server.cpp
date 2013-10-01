@@ -80,10 +80,12 @@ onion_connection_status Server::index(Request &req, Response &res){
 	
 	Dict context=defaultContext();
 	if (req.post().has("run")){
-		 std::map<std::string, std::string> extra_env;
+		std::map<std::string, std::string> extra_env;
 		 
-		for(auto &str: ini.get_keys("env-rw")){
-			extra_env[str]=req.post().get(str, ini.get("env-rw."+str));
+		if (ini.has("env-rw")){
+			for(auto &str: ini.get_keys("env-rw")){
+				extra_env[str]=req.post().get(str, ini.get("env-rw."+str));
+			}
 		}
 		
 		std::string test_name=run_test(std::stoi(req.post().get("test")), extra_env);
@@ -113,7 +115,7 @@ onion_connection_status Server::index(Request &req, Response &res){
 		
 		context.add( "tests", tests );
 	}
-	{
+	if (ini.has("env-rw")){
 		Dict envs;
 		for(auto &str: ini.get_keys("env-rw")){
 			Dict env({{"env", str},{"value", ini.get(std::string("env-rw.")+str)}});
