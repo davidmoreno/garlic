@@ -111,6 +111,7 @@ PARAM2=
 ```
 	
 3. Add to cron to check each hour (optional):
+
 	
 ```
 crontab -e
@@ -120,7 +121,10 @@ crontab -e
 
 4. Run the webserver:
 
+
 ```
 garlic PATH_TO_CONFIG_INI
 ```
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/d20adecf5166eaee302d188aeb41656d "githalytics.com")](http://githalytics.com/davidmoreno/garlic)
 
