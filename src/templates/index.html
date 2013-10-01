@@ -113,10 +113,15 @@ showResult = function(id){
 $(document).ready(function(){
 	reload_results();
 	$('#reload').focus()
-	$('.envvar').change(function(){
+	var update_envvar = function(){
 		var m=$(this)
-		$('[name='+m.attr('name')+']').val(m.val())
-	})
+		var val=m.val()
+		if (val.length==0)
+			val=m.attr('placeholder')
+		$('[type=hidden][name='+m.attr('name')+']').val(val)
+	}
+	
+	$('[type=text].envvar').each(update_envvar).change(update_envvar)
 })
 </script>
 

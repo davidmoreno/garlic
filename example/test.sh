@@ -4,7 +4,7 @@ echo "This is a simple test. Actually random"
 echo "Program arguments <$*>"
 echo "Extra ENVVARS"
 
-export
+export | grep GARLIC
 
 echo " -- "
 

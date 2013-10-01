@@ -92,18 +92,21 @@ onion_connection_status Server::index(Request &req, Response &res){
 	context.add("title", ini.get("global.name",""));
 	{
 		Dict tests;
-		Dict test;
-		test.add("id","0");
-		test.add("name",ini.get("scripts.test_name"));
-		tests.add("0", test);
+		{
+			Dict test({
+								{"id", "0"}, 
+								{"name",ini.get("scripts.test_name")}
+							});
+			tests.add("0", test);
+		}
 
 		for(int i=1;i<1000;i++){
 			auto i_str=std::to_string(i);
 			if (ini.has("scripts.test_"+i_str)){
-				test.remove("id");
-				test.remove("name");
-				test.add("id",i_str);
-				test.add("name",ini.get("scripts.test_name_"+i_str,"Test nr "+i_str));
+				Dict test( {
+						{"id", i_str}, 
+						{"name",ini.get("scripts.test_name_"+i_str,"Test nr "+i_str)}
+					});
 				tests.add(i_str, test);
 			}
 		}
@@ -111,13 +114,9 @@ onion_connection_status Server::index(Request &req, Response &res){
 		context.add( "tests", tests );
 	}
 	{
-		Dict env;
 		Dict envs;
 		for(auto &str: ini.get_keys("env-rw")){
-			env.remove("env");
-			env.remove("value");
-			env.add("env", str);
-			env.add("value", ini.get(std::string("env-rw.")+str));
+			Dict env({{"env", str},{"value", ini.get(std::string("env-rw.")+str)}});
 			envs.add(str, env);
 		}
 		context.add("envs", envs);
