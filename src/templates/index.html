@@ -77,6 +77,8 @@ reload_results = function(){
 			})
 		ul.append(lis)
 		
+		updateResult()
+		
 		if (running){
 			$('[name=run]').attr('disabled','disabled')
 		}
@@ -97,16 +99,30 @@ hideResult = function(){
 	$('#overwindow').remove()
 }
 
+output_lock_to_bottom=true
+
 showResult = function(id){
 	hideResult()
 	var ow=$('<div id="overwindow">').append( $('<div id="background">').click(hideResult) )
-	var out=$('<div id="output">')
+	var out=$('<div id="output">').attr('test',id)
 	ow.append(out)
 	$('body').append(ow)
 	out.append( $('<a>').attr('href','/result/'+id).text('{% trans "Get RAW" %}') )
+	out.on('scroll',function(e){
+		output_lock_to_bottom=(out[0].scrollHeight - out.scrollTop() <= out.outerHeight()+10);
+	})
 	
-	$.get('/result/'+id,function(data){
-		var out=$('#output').append($('<pre>').text(data))
+	updateResult()
+}
+
+updateResult = function(id){
+	if ($('#output').length==0)
+		return
+	$.get('/result/'+$('#output').attr('test'),function(data){
+		var output=$('#output')
+		var out=output.html('').append($('<pre>').text(data))
+		if (output_lock_to_bottom)
+			output[0].scrollTop = output[0].scrollHeight;
 	},'text')
 }
 

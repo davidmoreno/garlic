@@ -18,6 +18,8 @@
 #include <dirent.h>
 #include <vector>
 #include <sstream>
+#include <fstream>
+#include <sys/wait.h>
 
 #include "server.h"
 #include "utils.h"
@@ -169,7 +171,17 @@ onion_connection_status Server::results_json(Request &req, Response &res){
 			data.add("result",result);
 		}
 		catch(...){ // if no result, still running.. unless something went bad.
-			data.add("running","true"); // Fixme to real check if running
+			auto pid=std::stoi(file2string(logdir+name+".pid"));
+			int status;
+			pid_t result = waitpid(pid, &status, WNOHANG);
+			if (result == 0) {
+				data.add("running","true"); // Fixme to real check if running
+			} else {
+				data.add("result",std::to_string(result));
+				std::ofstream outfile(logdir+name+".result");
+				outfile<<result;
+			}
+			
 		}
 		
 		ret.add(name, data);
