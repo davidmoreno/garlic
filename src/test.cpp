@@ -34,9 +34,12 @@ bool Test::check_and_run()
 
 bool Test::check()
 {
-	setup_env(default_rw_env());
-	int ok=system(ini.get("scripts.check").c_str());
-	return ok!=0;
+	if (ini.has("scripts.check")){
+		setup_env(default_rw_env());
+		int ok=system(ini.get("scripts.check").c_str());
+		return ok!=0;
+	}
+	return 1; // No test, run always.
 }
 
 
@@ -50,7 +53,7 @@ int Test::run(int test_id,  const std::map<std::string, std::string> &extra_env,
 	{
 		int err_mkdir=mkdir(logpath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		if (err_mkdir <0 && err_mkdir != -EEXIST){
-			ONION_DEBUG("Error creating log path %s: %s", logpath.c_str(), strerror(errno));
+			//ONION_DEBUG("Error creating log path %s: %s", logpath.c_str(), strerror(errno));
 		}
 	}
 	std::string basefilename=logpath+testname;

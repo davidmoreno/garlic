@@ -182,11 +182,11 @@ onion_connection_status Server::results_json(Request &req, Response &res){
 			if (result == 0) {
 				data.add("running","true"); // Fixme to real check if running
 			} else {
-				data.add("result",std::to_string(result));
+				data.add("result",std::to_string(-1001));
 				std::ofstream outfile(logdir+name+".result");
 				outfile<<result;
 			}
-			
+			waitpid(-1, &status, WNOHANG);
 		}
 		
 		ret.add(name, data);
