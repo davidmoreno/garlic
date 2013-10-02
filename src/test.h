@@ -25,6 +25,8 @@ namespace Garlic{
 		bool check();
 		int run(int test_id, const std::map<std::string, std::string> &extra_env, const std::string &outfilename);
 	private:
+
+		std::map<std::string, std::string> default_rw_env(); /// Loads default env-rw
 		void setup_env(const std::map<std::string, std::string> &extra_env);
 	};
 }

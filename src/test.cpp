@@ -26,7 +26,7 @@ bool Test::check_and_run()
 	if (check()){
 		char now[32];
 		snprintf(now,sizeof(now),"%ld",time(NULL));
-		run(0, {}, now);
+		run(0, default_rw_env(), now);
 		return true;
 	}
 	return false;
@@ -34,13 +34,7 @@ bool Test::check_and_run()
 
 bool Test::check()
 {
-	std::map<std::string, std::string> extra_env;
-	
-	if (ini.has("env-rw"))
-		for(auto &str: ini.get_keys("env-rw")){
-			extra_env[str]=ini.get("env-rw."+str);
-		}
-	setup_env(extra_env);
+	setup_env(default_rw_env());
 	int ok=system(ini.get("scripts.check").c_str());
 	return ok!=0;
 }
@@ -75,7 +69,6 @@ int Test::run(int test_id,  const std::map<std::string, std::string> &extra_env,
 	close(fd);
 	
 	int fd_stderr=dup(2);
-	stderr=fdopen(fd_stderr,"w");
 	int ok;
 	
 	{ // Run of the test command, close all fds, open output to result file, close all at the end.
@@ -106,8 +99,7 @@ int Test::run(int test_id,  const std::map<std::string, std::string> &extra_env,
 
 	fd=dup2(fd_stderr,2);
 	assert(fd==2);
-	fclose(stderr);
-	stderr=fdopen(2,"w");
+	close(fd_stderr);
 	
 	ONION_DEBUG("Test finished. Result %d", ok);
 	
@@ -147,6 +139,15 @@ int Test::run(int test_id,  const std::map<std::string, std::string> &extra_env,
 	return ok;
 }
 
+std::map< std::string, std::string > Test::default_rw_env(){
+	std::map<std::string, std::string> extra_env;
+	if (ini.has("env-rw"))
+		for(auto &str: ini.get_keys("env-rw")){
+			extra_env[str]=ini.get("env-rw."+str);
+		}
+	return extra_env;
+}
+
 void Test::setup_env(const std::map<std::string, std::string> &extra_env){
 	int ok=0;
 	ok=chdir(ini.getPath().c_str());
@@ -156,7 +157,7 @@ void Test::setup_env(const std::map<std::string, std::string> &extra_env){
 		ONION_DEBUG("Chdir to %s", ini.get("scripts.chdir").c_str());
 	}
 	if (ok<0){
-	  ONION_ERROR("Could not chdir to %s: %s", ini.getPath().c_str(), strerror(errno));
+	  ONION_ERROR("Could not chdir to <%s> + <%s>: %s", ini.getPath().c_str(), ini.get("scripts.chdir").c_str(), strerror(errno));
 		return;
 	}
 	

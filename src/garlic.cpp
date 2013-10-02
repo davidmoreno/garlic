@@ -23,10 +23,11 @@ void usage(){
 	exit(1);
 }
 
-::Onion::Onion o;
+std::shared_ptr<Onion::Onion> o;
 void stop_listening(int unused){
 	ONION_WARNING("Stop listening");
-	o.listenStop();
+	if (o)
+		o->listenStop();
 }
 
 int main(int argc, char **argv){
@@ -38,24 +39,25 @@ int main(int argc, char **argv){
 			IniReader ini(argv[1]);
 			Test test( ini );
 			bool ok=test.check_and_run();
-			exit(ok);
+			return ok;
 		}
 		else{
 			usage();
 		}
 	}
 	
-	signal(SIGTERM, stop_listening);
+// 	signal(SIGTERM, stop_listening);
 	signal(SIGINT, stop_listening);
 	
 	IniReader ini(argv[1]);
 	Server garlic(ini);
 	ONION_INFO("Garlic at path %s, listening at %s:%s", ini.getPath().c_str(), ini.get("server.address","::").c_str(), ini.get("server.port","8000").c_str());
 	
-	o.setPort(ini.get("server.port","8000"));
-	o.setHostname(ini.get("server.address","8000"));
+	o=std::make_shared<Onion::Onion>();
+	o->setPort(ini.get("server.port","8000"));
+	o->setHostname(ini.get("server.address","8000"));
 	
-	Url root(o);
+	Url root(*o);
 	
 	root.add("",&garlic, &Server::login);
 	root.add("logout",&garlic, &Server::logout);
@@ -64,5 +66,5 @@ int main(int argc, char **argv){
 	root.add("results",&garlic, &Server::results_json);
 	root.add("^result/(.*)$",&garlic, &Server::result);
 	
-	o.listen();
+	o->listen();
 }
