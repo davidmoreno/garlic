@@ -115,20 +115,26 @@ int Test::run(int test_id,  const std::map<std::string, std::string> &extra_env,
 		fd=open((basefilename+".output").c_str(), O_RDONLY);
 		assert(fd==0);
 		if (ok!=0){
-			ONION_DEBUG("Error! Execute: %s", ini.get("scripts.on_error").c_str());
-			int ok=system(ini.get("scripts.on_error").c_str());
-			if (ok!=0){
-			  ONION_ERROR("Coult not execute on_error script");
+			ONION_DEBUG("Error running test");
+			if (ini.has("scripts.on_error")){
+				ONION_DEBUG("Execute: %s", ini.get("scripts.on_error").c_str());
+				int ok=system(ini.get("scripts.on_error").c_str());
+				if (ok!=0){
+					ONION_ERROR("Coult not execute on_error script");
+				}
 			}
 			fd=open(error_on_last_file.c_str(),O_WRONLY|O_CREAT, 0666);
 			assert(fd>=0);
 			close(fd);
 		}
 		else if (access(error_on_last_file.c_str(), F_OK)!=-1){
-			ONION_DEBUG("Success after many errors! Execute: %s", ini.get("scripts.on_back_to_normal").c_str());
-			ok=system(ini.get("scripts.on_back_to_normal").c_str());
-			if (ok!=0){
-			  ONION_ERROR("Error executing script on_back_to_normal");
+			ONION_DEBUG("Success after many errors!");
+			if (ini.has("scripts.on_error")){
+				ONION_DEBUG("Execute: %s", ini.get("scripts.on_back_to_normal").c_str());
+				ok=system(ini.get("scripts.on_back_to_normal").c_str());
+				if (ok!=0){
+					ONION_ERROR("Error executing script on_back_to_normal");
+				}
 			}
 			unlink(error_on_last_file.c_str());
 		}
