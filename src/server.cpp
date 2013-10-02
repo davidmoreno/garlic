@@ -218,6 +218,7 @@ std::string Server::run_test(int test_id, const std::map<std::string, std::strin
 	if (fork()==0){ // Another process.
 		int ok=test.run(test_id, extra_env, now);
 		
+		ONION_DEBUG("Other process finished: %d", ok);
 		exit(ok);
 	}
 	return now;
