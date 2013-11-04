@@ -36,9 +36,9 @@
 </div>
 
 <script>
-var okicon=$("<span class='icon'>😎</span>");
-var runningicon=$("<span class='icon'>♨</span>");
-var erroricon=$("<span class='icon'>⛈</span>");
+var okicon
+var runningicon
+var erroricon
 
 reload_results = function(){
 	var pollingd=false;
@@ -127,6 +127,10 @@ updateResult = function(id){
 }
 
 $(document).ready(function(){
+	okicon=$("<span class='icon'>😎</span>");
+	runningicon=$("<span class='icon'>♨</span>");
+	erroricon=$("<span class='icon'>⛈</span>");
+
 	reload_results();
 	$('#reload').focus()
 	var update_envvar = function(){

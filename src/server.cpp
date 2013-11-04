@@ -99,7 +99,7 @@ onion_connection_status Server::index(Request &req, Response &res){
 		{
 			Dict test({
 								{"id", "0"}, 
-								{"name",ini.get("scripts.test_name")}
+								{"name",ini.get("scripts.test_name", "Default test")}
 							});
 			tests.add("0", test);
 		}
