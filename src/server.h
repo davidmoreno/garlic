@@ -23,7 +23,6 @@ namespace Garlic{
 	public:
 		Server(IniReader &ini);
 		onion_connection_status login(Onion::Request &req, Onion::Response &res);
-		onion_connection_status style_css(Onion::Request &req, Onion::Response &res);
 		onion_connection_status logout(Onion::Request &req, Onion::Response &res);
 		onion_connection_status index(Onion::Request &req, Onion::Response &res);
 		onion_connection_status results_json(Onion::Request &req, Onion::Response &res);

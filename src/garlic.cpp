@@ -15,6 +15,10 @@
 #include "utils.h"
 #include "inireader.h"
 
+extern "C" {
+#include "assets.h"
+}
+
 using namespace Onion;
 using namespace Garlic;
 
@@ -61,7 +65,7 @@ int main(int argc, char **argv){
 	
 	root.add("",&garlic, &Server::login);
 	root.add("logout",&garlic, &Server::logout);
-	root.add("style.css",&garlic, &Server::style_css);
+	root.add("^static/", opack_static);
 	root.add("index",&garlic, &Server::index);
 	root.add("results",&garlic, &Server::results_json);
 	root.add("^result/(.*)$",&garlic, &Server::result);

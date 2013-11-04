@@ -27,9 +27,9 @@
 using namespace Onion;
 using namespace Garlic;
 
-extern "C" void login_html(onion_dict *context, onion_response *res);
-extern "C" void index_html(onion_dict *context, onion_response *res);
-extern "C" void style_css(onion_dict *context, onion_response *res);
+extern "C" {
+#include "templates/assets.h"
+}
 
 Server::Server(IniReader &ini_) : ini(ini_), test(ini_){
 	logdir=ini.get("logpath", ini.getPath() + "/log/");
@@ -60,12 +60,6 @@ onion_connection_status Server::login(Request &req, Response &res){
 	
 	login_html(context.c_handler(), res.c_handler());
 	
-	return OCS_PROCESSED;
-}
-
-onion_connection_status Server::style_css(Request &req, Response &res){
-	res.setHeader("Content-Type","text/css");
-	::style_css(NULL, res.c_handler());
 	return OCS_PROCESSED;
 }
 

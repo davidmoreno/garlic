@@ -3,6 +3,7 @@ cmake_policy(VERSION 2.8)
 project(garlic)
 find_library(ONIONCPP_LIB NAMES onioncpp PATH ${LIBPATH})
 SET(OTEMPLATE otemplate)
+SET(OPACK opack)
 SET(CMAKE_CXX_FLAGS "-Wall -Werror -O2 --std=c++11 -D__DEBUG__")
 
 IF (${CMAKE_BUILD_TYPE} MATCHES "Debug")

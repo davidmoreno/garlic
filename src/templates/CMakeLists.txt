@@ -19,11 +19,5 @@ add_custom_command(
    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/index.html
    )
 
-add_custom_command(
-   OUTPUT style_css.c
-   COMMAND ${OTEMPLATE} ${CMAKE_CURRENT_SOURCE_DIR}/style.css
-                 ${CMAKE_CURRENT_BINARY_DIR}/style_css.c
-   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/style.css
-   )
 
-add_library(garlic_templates STATIC base_html.c login_html.c index_html.c style_css.c)
+add_library(garlic_templates STATIC base_html.c login_html.c index_html.c)
