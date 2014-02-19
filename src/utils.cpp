@@ -10,7 +10,7 @@
 #include <onion/log.h>
 #include <string.h>
 
-#include "utils.h"
+#include "utils.hpp"
 
 std::string Garlic::realpath(const std::string& path)
 {

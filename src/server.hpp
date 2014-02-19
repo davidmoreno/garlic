@@ -11,8 +11,8 @@
 #include <onion/onion.hpp>
 #include <onion/dict.hpp>
 
-#include "inireader.h"
-#include "test.h"
+#include "inireader.hpp"
+#include "test.hpp"
 
 namespace Garlic{
 	class Server{

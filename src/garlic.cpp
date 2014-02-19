@@ -11,9 +11,9 @@
 #include <string.h>
 #include <signal.h>
 
-#include "server.h"
-#include "utils.h"
-#include "inireader.h"
+#include "server.hpp"
+#include "utils.hpp"
+#include "inireader.hpp"
 
 extern "C" {
 #include "assets.h"
@@ -23,7 +23,7 @@ using namespace Onion;
 using namespace Garlic;
 
 void usage(){
-	ONION_INFO("Usage: garlic <configdir> [--check-and-run]");
+	ONION_INFO("Usage: garlic <config file> [--check-and-run]");
 	exit(1);
 }
 

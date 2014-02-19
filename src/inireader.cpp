@@ -9,8 +9,8 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <libgen.h>
 
-#include "inireader.h"
-#include "utils.h"
+#include "inireader.hpp"
+#include "utils.hpp"
 
 using namespace Garlic;
 

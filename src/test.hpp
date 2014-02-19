@@ -11,7 +11,7 @@
 #include <map>
 #include <string>
 
-#include "inireader.h"
+#include "inireader.hpp"
 
 namespace Garlic{
 	class Test{

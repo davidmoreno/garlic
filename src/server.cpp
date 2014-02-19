@@ -21,8 +21,8 @@
 #include <fstream>
 #include <sys/wait.h>
 
-#include "server.h"
-#include "utils.h"
+#include "server.hpp"
+#include "utils.hpp"
 
 using namespace Onion;
 using namespace Garlic;

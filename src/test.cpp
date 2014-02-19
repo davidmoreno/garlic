@@ -12,7 +12,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <string.h>
-#include "test.h"
+#include "test.hpp"
 
 using namespace Garlic;
 

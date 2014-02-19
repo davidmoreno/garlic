@@ -1,5 +1,13 @@
 #!/bin/sh
 
-rm -rf build-debug && mkdir build-debug && cd build-debug && cmake .. && time make && rm -rf build-debug && exit 0
+set -e
 
-exit 1
+rm -rf build-debug 
+mkdir build-debug 
+cd build-debug 
+cmake ..
+time make 
+cd ..
+rm -rf build-debug 
+
+exit 0
