@@ -14,6 +14,7 @@
 #include "server.hpp"
 #include "utils.hpp"
 #include "inireader.hpp"
+#include "cron.hpp"
 
 extern "C" {
 #include "assets.h"
@@ -44,6 +45,18 @@ int main(int argc, char **argv){
 			Test test( ini );
 			bool ok=test.check_and_run();
 			return ok;
+		}
+		if (strcmp(argv[2],"--cron")==0){
+			IniReader ini(argv[1]);
+			Test test( ini );
+			Cron cron;
+			cron.add(ini.get("scripts.test_cron"), [&test](){ test.check_and_run(); });
+			return 0;
+			cron.start();
+			while(true){
+				sleep(1000000);
+			}
+			return 0;
 		}
 		else{
 			usage();

@@ -1,6 +1,7 @@
 add_subdirectory(templates)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(~/src/)
 
 add_custom_command(
    OUTPUT static.c
@@ -10,7 +11,7 @@ add_custom_command(
    )
 
 
-add_executable(garlic garlic.cpp server.cpp inireader.cpp test.cpp utils.cpp static.c)
+add_executable(garlic garlic.cpp server.cpp inireader.cpp test.cpp utils.cpp cron.cpp static.c)
 target_link_libraries(garlic onion onioncpp garlic_templates)
 
 install(TARGETS garlic DESTINATION bin)
