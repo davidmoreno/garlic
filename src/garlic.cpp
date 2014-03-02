@@ -28,7 +28,7 @@ void usage(){
 	exit(1);
 }
 
-Onion::Onion *o=NULL;
+::Onion::Onion *o=NULL;
 void stop_listening(int unused){
 	ONION_WARNING("Stop listening");
 	if (o)
@@ -51,11 +51,7 @@ int main(int argc, char **argv){
 			Test test( ini );
 			Cron cron;
 			cron.add(ini.get("scripts.test_cron"), [&test](){ test.check_and_run(); });
-			return 0;
-			cron.start();
-			while(true){
-				sleep(1000000);
-			}
+			cron.work();
 			return 0;
 		}
 		else{
@@ -67,10 +63,16 @@ int main(int argc, char **argv){
 	signal(SIGINT, stop_listening);
 	
 	IniReader ini(argv[1]);
+	
+	Cron cron;
+	Test test( ini );
+	cron.add(ini.get("scripts.test_cron"), [&test](){ test.check_and_run(); });
+	
+	
 	Server garlic(ini);
 	ONION_INFO("Garlic at path %s, listening at %s:%s", ini.getPath().c_str(), ini.get("server.address","::").c_str(), ini.get("server.port","8000").c_str());
 	
-	o=new Onion::Onion();
+	o=new ::Onion::Onion();
 	o->setPort(ini.get("server.port","8000"));
 	o->setHostname(ini.get("server.address","8000"));
 	
@@ -83,7 +85,9 @@ int main(int argc, char **argv){
 	root.add("results",&garlic, &Server::results_json);
 	root.add("^result/(.*)$",&garlic, &Server::result);
 	
+	cron.start();
 	o->listen();
+	cron.stop();
 	
 	delete o;
 }

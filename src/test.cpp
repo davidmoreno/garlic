@@ -72,6 +72,8 @@ int Test::run(int test_id,  const std::map<std::string, std::string> &extra_env,
 	close(fd);
 	
 	int fd_stderr=dup(2);
+	int fd_stdout=dup(1);
+	int fd_stdin=dup(0);
 	int ok;
 	
 	{ // Run of the test command, close all fds, open output to result file, close all at the end.
@@ -92,17 +94,25 @@ int Test::run(int test_id,  const std::map<std::string, std::string> &extra_env,
 			ok=system(ini.get("scripts.test_"+std::to_string(test_id),"./test.sh").c_str());
 		
 		
-		fd=close(0);
-		assert(fd==0);
-		fd=close(1);
-		assert(fd==0);
-		fd=close(2);
-		assert(fd==0);
+// 		fd=close(0);
+// 		assert(fd==0);
+// 		fd=close(1);
+// 		assert(fd==0);
+// 		fd=close(2);
+// 		assert(fd==0);
 	}
 
 	fd=dup2(fd_stderr,2);
 	assert(fd==2);
 	close(fd_stderr);
+
+	fd=dup2(fd_stdout,1);
+	assert(fd==1);
+	close(fd_stdout);
+
+	fd=dup2(fd_stdin,0);
+	assert(fd==0);
+	close(fd_stdin);
 	
 	ONION_DEBUG("Test finished. Result %d", ok);
 	

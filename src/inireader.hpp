@@ -22,6 +22,13 @@ namespace Garlic{
 	private:
 		std::shared_ptr<GarlicPrivate> d;
 	public:
+		class value_not_found : public std::exception{
+			std::string msg;
+		public:
+			value_not_found(const std::string &str) : msg(std::string("Key not found ")+str) {}
+			const char *what() const throw() { return msg.c_str(); }
+		};
+		
 		IniReader(const std::string &inifile);
 		~IniReader();
 		

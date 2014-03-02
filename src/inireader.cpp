@@ -5,8 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
+#include <onion/log.h>
+#include <underscore/underscore.hpp>
+#include <underscore/string.hpp>
+#include <underscore/file.hpp>
+#include <string>
 #include <libgen.h>
 
 #include "inireader.hpp"
@@ -16,19 +19,26 @@ using namespace Garlic;
 
 class Garlic::GarlicPrivate{
 public:
-	boost::property_tree::ptree ini;
+	typedef std::map<std::string, std::map<std::string, std::string>> data_t;
+	
 	std::string path;
+	data_t data;
 };
 
 IniReader::IniReader(const std::string& inifile)
 {
 	d=std::make_shared<GarlicPrivate>();
-	boost::property_tree::ini_parser::read_ini(inifile, d->ini);
 	
-	std::string rp=realpath(inifile);
-	char *path=strdupa(rp.c_str());
-	::dirname(path);
-	d->path=path;
+	std::string group;
+	for(const auto &l: underscore::file(inifile)){
+		if (l.startswith("[") && l.endswith("]"))
+			group=l.slice(1,-2);
+		else{
+			auto p=l.split('=',true);
+			d->data[group][p[0].strip()]=l.slice(p[0].length()+1,-1).strip();
+			std::cout<<"Add "<<group<<"."<<p[0]<<" = "<<l.slice(p[0].length()+1,-1).strip()<<std::endl;
+		}
+	}
 	
 	try{
 		std::string p=get("global.path");
@@ -40,7 +50,8 @@ IniReader::IniReader(const std::string& inifile)
 		}
 	}
 	catch(const std::exception &e){
-		// pass, no global.path
+		std::string tmp=inifile;
+		d->path=realpath(dirname( (char*)inifile.c_str()) );
 	}
 }
 
@@ -48,35 +59,48 @@ IniReader::~IniReader()
 {
 }
 
-std::string IniReader::get(const std::string& field) const
+std::string IniReader::get(const std::string& key) const
 {
-	return d->ini.get<std::string>(field);
+	auto p=underscore::string(key).split('.');
+	auto group = d->data.find(p[0]);
+	if (group!=d->data.end()){
+		auto v=group->second.find(p[1]);
+		if (v!=group->second.end()){
+			return v->second;
+		}
+	}
+	throw value_not_found(key);
 }
 
-bool IniReader::has(const std::string& field) const
+bool IniReader::has(const std::string& key) const
 {
-	try{
-		d->ini.get<std::string>(field);
-		return true;
+	auto p=underscore::string(key).split('.');
+	auto group = d->data.find(p[0]);
+	if (group!=d->data.end()){
+		if (p.size()==1)
+			return true;
+		auto v=group->second.find(p[1]);
+		if (v!=group->second.end())
+			return true;
 	}
-	catch(...){
-		return false;
-	}
+	return false;
 }
 
 std::string IniReader::get(const std::string& field, const std::string& defaultvalue) const
 {
-	return d->ini.get<std::string>(field, defaultvalue);
+	try{
+		return get(field);
+	}
+	catch(std::exception &e){
+		return defaultvalue;
+	}
 }
 
 std::vector<std::string> IniReader::get_keys(const std::string &group) const
 {
 	std::vector<std::string> ret;
-	auto g=d->ini.get_child(group);
-	auto I=g.begin(), endI=g.end();
-	for(;I!=endI;++I){
-		ret.push_back((*I).first);
-	}
+ 	for(const auto &v: d->data[group])
+ 		ret.push_back(v.first);
 	return ret;
 }
 

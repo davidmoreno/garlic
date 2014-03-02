@@ -8,13 +8,15 @@
 #pragma once
 #include <functional>
 #include <string>
-#include <queue>
+#include <vector>
+#include <thread>
 
 namespace Garlic{
+	class CronJob;
 	class Cron{
-// 		typedef std::tuple<int, const std::string &timespec, std::function<void ()> job;
-		
-		std::priority_queue<int> task_queue;
+		std::vector<std::shared_ptr<CronJob>> job_queue;
+		std::thread job_thread;
+		bool working;
 	public:
 		Cron();
 		~Cron();
@@ -26,5 +28,8 @@ namespace Garlic{
 		void start();
 		/// Stops the cron daemon
 		void stop();
+		
+		/// Works until stop
+		void work();
 	};
 };

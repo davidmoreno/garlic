@@ -15,13 +15,13 @@
 #include <string.h>
 
 #include <underscore/underscore.hpp>
-#include <underscore/strings.hpp>
+#include <underscore/string.hpp>
 
 using namespace Garlic;
 using namespace underscore;
 
-
-class ParseCron{
+namespace Garlic{
+class CronJob{
 	static const int max_year = 2040;
 	
 	class unsatisfiable : public std::exception{ /// Cant satisfy the cron expression request.
@@ -79,17 +79,17 @@ class ParseCron{
 		int partn;
 	public:
 		InRange(const std::string &rule, int _min, int _max, int partn) : min(_min), max(_max), each(1), partn(partn){
-			std::cout<<"Create rule "<<partn<<" "<<rule<<std::endl;
+// 			std::cout<<"Create rule "<<partn<<" "<<rule<<std::endl;
 			if (rule=="*"){
-				std::cout<<"All"<<std::endl;
+// 				std::cout<<"All"<<std::endl;
 				return;
 			}
 			min=max=std::stoi(rule); // single number
-			std::cout<<"Range "<<min<<"-"<<max<<std::endl;
+// 			std::cout<<"Range "<<min<<"-"<<max<<std::endl;
 		};
 		
 		std::string to_string(){
-			return std::to_string(partn)+" in range "+std::to_string(min)+" - "+std::to_string(max);
+			return std::to_string(partn)+" in range "+std::to_string(min)+" - "+std::to_string(max)+" - "+std::to_string(each);
 		}
 		
 		bool valid(const candidate_t &candidate){
@@ -158,9 +158,18 @@ class ParseCron{
 		virtual std::string to_string() override { return "Valid date (leap years, 30 or 31 months...)"; }
 	};
 	
+private:
+	std::string timespec;
 public:
-	static time_t next(const std::string &timespec){
-		std::cout<<timespec<<std::endl;
+	time_t next_t;
+	std::function<void()> f;
+	
+	CronJob(const std::string &timespec, const std::function<void()> &f) : timespec(timespec), f(f){
+		next_t = next();
+	}
+	
+	time_t next(){
+// 		std::cout<<timespec<<std::endl;
 		auto parts=string(timespec).split(' ');
 		if (parts.size()!=6){
 			throw(std::exception());
@@ -185,19 +194,19 @@ public:
 		time (&rawtime);
 		tm = localtime (&rawtime);
 
-		candidate_t candidate{tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min};
+		candidate_t candidate{{tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min}};
 		rules[0]->incr(candidate);
 		
 		bool valid=true;
 		do{
 			valid=true;
-			std::cout<<std::endl;
+// 			std::cout<<std::endl;
 			for(auto &r: rules){
-				std::cout<<candidate.to_string()<<" Check rule "<<r->to_string()<<std::endl;
+// 				std::cout<<candidate.to_string()<<" Check rule "<<r->to_string()<<std::endl;
 				while(!r->valid(candidate)){
-					std::cout<<"incr by <"<<r->to_string()<<"> incr "<<candidate.to_string()<<" to ";
+// 					std::cout<<"incr by <"<<r->to_string()<<"> incr "<<candidate.to_string()<<" to ";
 					valid&=r->incr(candidate);
-					std::cout<<candidate.to_string()<<std::endl;
+// 					std::cout<<candidate.to_string()<<std::endl;
 					if (!valid) // Start over again, this is normally not good day of week, or 30 feb style dates.
 						break; 
 				}
@@ -207,9 +216,11 @@ public:
 		}while(!valid);
 		std::cout<<"Final "<<candidate.to_string()<<std::endl;
 		
-		return candidate.to_unix_timestamp();
+		next_t=candidate.to_unix_timestamp();
+		return next_t;
 	}
 };
+}
 
 Cron::Cron()
 {
@@ -223,16 +234,40 @@ Cron::~Cron()
 
 void Cron::add(const std::string& timespec, const std::function< void () >& f)
 {
-	int next_t=ParseCron::next(timespec);
-	std::cout<<"Next occurence is "<<next_t<<", which means in "<<(next_t-time(NULL))<<std::endl;
-// 	queue.push({next_t, timespec, f});
-	// FIXME check if its next, and if so, cancel the timer and restart.
+	job_queue.push_back( std::make_shared<CronJob>(timespec, f) );
+	
+	std::sort(job_queue.begin(), job_queue.end());
 }
 
 void Cron::start(){
+	working=true;
+	job_thread=std::move( std::thread([this]{ this->work(); }) );
 }
 
 void Cron::stop()
 {
+	working=false;
+	job_thread.join();
+}
 
+void Cron::work()
+{
+	working=true;
+	std::cout<<"Work"<<std::endl;
+	while(working){
+		if (job_queue.size()==0) // Wait a min and check again.. Better use thread signals.
+			sleep(60);
+		else{
+			if (time(NULL) == job_queue[0]->next_t)
+				job_queue[0]->f();
+			job_queue[0]->next();
+			std::sort(job_queue.begin(), job_queue.end());
+			
+			int sleep_t=job_queue[0]->next_t - time(NULL);
+			std::cout<<"Sleep "<<sleep_t<<" seconds"<<std::endl;
+			if ( sleep_t >0)
+				sleep( sleep_t ); // Sleep until time.
+		}
+	}
+	std::cout<<"End work"<<std::endl;
 }
