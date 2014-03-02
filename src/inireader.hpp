@@ -16,7 +16,7 @@ namespace Garlic{
 	class GarlicPrivate;
 	
 	/**
-	* @short Wrapper around boost property_tree, to make it faster compile and easy use.
+	* @short Reads s ini file and creates a in mem map of groups and keys to values.
 	*/
 	class IniReader{
 	private:

@@ -1,7 +1,7 @@
 add_subdirectory(templates)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(~/src/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../..)
 
 add_custom_command(
    OUTPUT static.c

@@ -30,13 +30,15 @@ IniReader::IniReader(const std::string& inifile)
 	d=std::make_shared<GarlicPrivate>();
 	
 	std::string group;
-	for(const auto &l: underscore::file(inifile)){
+	for(const auto &line: underscore::file(inifile)){
+		auto l=line.split('#',true)[0];
+		if (l.empty())
+			continue;
 		if (l.startswith("[") && l.endswith("]"))
 			group=l.slice(1,-2);
 		else{
 			auto p=l.split('=',true);
 			d->data[group][p[0].strip()]=l.slice(p[0].length()+1,-1).strip();
-			std::cout<<"Add "<<group<<"."<<p[0]<<" = "<<l.slice(p[0].length()+1,-1).strip()<<std::endl;
 		}
 	}
 	

@@ -9,9 +9,9 @@
 #include <onion/dict.hpp>
 #include <onion/request.hpp>
 #include <onion/shortcuts.h>
+#include <underscore/string.hpp>
 
 #include <string>
-#include <boost/algorithm/string.hpp>
 
 #include <time.h>
 #include <assert.h>
@@ -140,7 +140,7 @@ onion_connection_status Server::results_json(Request &req, Response &res){
 		struct dirent *ent;
 		while ( (ent=readdir(dir)) ){
 			std::string filename=ent->d_name;
-			if (boost::algorithm::ends_with(filename,".pid"))
+			if (underscore::string(filename).endswith(".pid"))
 				files.push_back(filename.substr(0,filename.length()-4));
 		}
 		closedir(dir);
