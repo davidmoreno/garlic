@@ -24,12 +24,21 @@ namespace Garlic{
 class CronJob{
 	static const int max_year = 2040;
 	
-	class unsatisfiable : public std::exception{ /// Cant satisfy the cron expression request.
-	public:
-	};
-	
 	struct candidate_t{
 		int data[5]; // year-month-day hour:minute
+		
+		candidate_t(){
+			struct tm *tm;
+			time_t rawtime;
+
+			time (&rawtime);
+			tm = localtime (&rawtime);
+			data[0]=tm->tm_year+1900;
+			data[1]=tm->tm_mon+1;
+			data[2]=tm->tm_mday;
+			data[3]=tm->tm_hour;
+			data[4]=tm->tm_min;
+		}
 		
 		int &operator[](int p){
 			return data[p];
@@ -52,24 +61,26 @@ class CronJob{
 		}
 		
 		std::string to_string() const{
-// 			return string("{}-{}-{} {}:{}").args(data);
-			std::stringstream ss;
-			ss<<data[0]<<"-"<<data[1]<<"-"<<data[2]<<" "<<data[3]<<":"<<data[4];
-			return ss.str();
+			return ::underscore::string("{}-{}-{} {}:{}").format({data[0], data[1], data[2], data[3], data[4]});
 		}
 	};
 
 	class Check {
 	protected:
 		std::shared_ptr<Check> overflow_part; // For minutes is hours, so at minute overflow, increment hour.
+		std::shared_ptr<Check> reset_part; // For hours is minutes, so at hour incr, reset minutes.
 	public:
 		Check(){};
 		
 		virtual bool valid(const candidate_t &candidate) = 0;
 		virtual bool incr(candidate_t &candidate) = 0; // After incr, is candidate still valid, or should I look from the begining again.
+		virtual bool reset(candidate_t &candidate){ return false; };  // After incr of next part, the prev may need to go to min, as if hour increases, then min should go 0
 		virtual std::string to_string() = 0;
 		void set_overflow_part(std::shared_ptr<Check> prev){
 			overflow_part=prev;
+		}
+		void set_reset_part(std::shared_ptr<Check> prev){
+			reset_part=prev;
 		}
 	};
 
@@ -79,13 +90,31 @@ class CronJob{
 		int partn;
 	public:
 		InRange(const std::string &rule, int _min, int _max, int partn) : min(_min), max(_max), each(1), partn(partn){
-// 			std::cout<<"Create rule "<<partn<<" "<<rule<<std::endl;
-			if (rule=="*"){
-// 				std::cout<<"All"<<std::endl;
+			::underscore::string srule=rule;
+			if (srule.contains("/")){
+				auto l=srule.split('/');
+				if (l.count()!=2)
+					throw Garlic::Cron::invalid_rule();
+				each=l[1].to_long();
+				srule=l[0];
+			}
+			else
+				each=1;
+			if (srule=="*"){
 				return;
 			}
-			min=max=std::stoi(rule); // single number
-// 			std::cout<<"Range "<<min<<"-"<<max<<std::endl;
+			else if (srule.contains("-")){
+				auto l=srule.split('-');
+				if (l.count()!=2)
+					throw Garlic::Cron::invalid_rule();
+				min=l[0].to_long();
+				max=l[1].to_long();
+				if (max<min)
+					throw Garlic::Cron::invalid_rule();
+			}
+			else{
+				min=max=srule.to_long(); // single number
+			}
 		};
 		
 		std::string to_string(){
@@ -94,7 +123,7 @@ class CronJob{
 		
 		bool valid(const candidate_t &candidate){
 // 			std::cout<<"check "<<to_string()<<" "<<candidate.to_string()<<" "<<(candidate[partn]>=min && candidate[partn]<=max)<<std::endl;
-			return candidate[partn]>=min && candidate[partn]<=max; // and each
+			return candidate[partn]>=min && candidate[partn]<=max && (candidate[partn]%each)==0; // and each
 		}
 		
 		bool incr(candidate_t &candidate){
@@ -109,6 +138,13 @@ class CronJob{
 					overflow_part->incr(candidate);
 				}
 			}
+			if (reset_part)
+				reset_part->reset(candidate);
+			return true;
+		}
+		
+		bool reset(candidate_t &candidate){
+			candidate[partn]=min;
 			return true;
 		}
 	};
@@ -183,18 +219,14 @@ public:
 			std::make_shared<WeekDay>( parts[4] ),
 			std::make_shared<ValidDate>( )
 		};
-		for(int i=0;i<4;i++)
+		for(int i=0;i<4;i++){
 			rules[i]->set_overflow_part(rules[i+1]);
+			rules[i+1]->set_reset_part(rules[i]);
+		}
 		rules[5]->set_overflow_part(rules[2]);
 		rules[6]->set_overflow_part(rules[2]);
 		
-		struct tm *tm;
-		time_t rawtime;
-
-		time (&rawtime);
-		tm = localtime (&rawtime);
-
-		candidate_t candidate{{tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min}};
+		candidate_t candidate;
 		rules[0]->incr(candidate);
 		
 		bool valid=true;
@@ -212,7 +244,7 @@ public:
 				}
 			}
 			if (candidate[0]>=max_year)
-				throw(unsatisfiable());
+				throw(Garlic::Cron::unsatisfiable());
 		}while(!valid);
 		std::cout<<"Final "<<candidate.to_string()<<std::endl;
 		

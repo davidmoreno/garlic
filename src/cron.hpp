@@ -18,6 +18,11 @@ namespace Garlic{
 		std::thread job_thread;
 		bool working;
 	public:
+		/// Cant satisfy the cron expression request. For example non existant date.
+		class unsatisfiable : public std::exception{};
+		/// Trying to set an invalid rule.
+		class invalid_rule : public std::exception{};
+	
 		Cron();
 		~Cron();
 		

@@ -30,6 +30,13 @@ void usage(){
 
 ::Onion::Onion *o=NULL;
 void stop_listening(int unused){
+	static bool already_called=false;
+	if (already_called){
+		ONION_ERROR("Force stop listening");
+		exit(1);
+	}
+	already_called=true;
+	
 	ONION_WARNING("Stop listening");
 	if (o)
 		o->listenStop();
