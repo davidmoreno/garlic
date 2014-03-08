@@ -150,15 +150,47 @@ class CronJob{
 	};
 	
 	class WeekDay : public Check{
+		bool validDays[7];
 	public:
-		WeekDay(const std::string &expr) {}
+		WeekDay(const std::string &_expr) {
+			::underscore::string expr{_expr};
+			memset(validDays, 0, sizeof(bool));
+			if (expr=="*"){
+				memset(validDays, 1, sizeof(bool));
+				return;
+			}
+			if (expr.contains(",")){
+				for(auto &v : expr.split(",")){
+					validDays[v.to_long()%7]=true;
+				}
+			}
+			else{
+				validDays[expr.to_long()%7]=true;
+			}
+		}
 		virtual bool incr(candidate_t &candidate) override { 
 			if (overflow_part){
 				overflow_part->incr(candidate);
 			}
 			return false;
 		}
-		virtual bool valid(const candidate_t &candidate) { return true; }
+		virtual bool valid(const candidate_t &candidate) {
+			auto dow=dayOfWeek(candidate);
+			return validDays[dow];
+		}
+		
+		int dayOfWeek(const candidate_t &candidate){
+			const char doomdays[12]={3, 14, 14,  4, 9, 6,  11, 8, 5,  10, 7, 12};
+			int dow;
+			
+			int doomsday=((candidate[0] + (candidate[0]/4)) + 1 ) % 7;
+			
+			dow=(doomsday + (28 + candidate[2] - doomdays[ candidate[1]-1 ])) % 7;
+			
+			std::cout<<"dow for "<<candidate.to_string()<<" is "<<dow<<std::endl;
+			return dow;
+		}
+		
 		virtual std::string to_string() override { return "Week of day"; }
 	};
 
