@@ -22,7 +22,7 @@ using namespace underscore;
 
 namespace Garlic{
 class CronJob{
-	static const int max_year = 2040;
+	static const int max_year = 2099;
 	
 	struct candidate_t{
 		int data[5]; // year-month-day hour:minute
@@ -115,6 +115,8 @@ class CronJob{
 			else{
 				min=max=srule.to_long(); // single number
 			}
+			if (min<_min || max>_max)
+				throw Garlic::Cron::unsatisfiable();
 		};
 		
 		std::string to_string(){
@@ -129,6 +131,8 @@ class CronJob{
 		bool incr(candidate_t &candidate){
 			if (candidate[partn]<min){
 				candidate[partn]=min;
+				if (reset_part)
+					reset_part->reset(candidate);
 				return true;
 			}
 			candidate[partn]++;
@@ -145,6 +149,9 @@ class CronJob{
 		
 		bool reset(candidate_t &candidate){
 			candidate[partn]=min;
+			if (reset_part)
+				reset_part->reset(candidate);
+			
 			return true;
 		}
 	};
@@ -154,9 +161,9 @@ class CronJob{
 	public:
 		WeekDay(const std::string &_expr) {
 			::underscore::string expr{_expr};
-			memset(validDays, 0, sizeof(bool));
+			memset(validDays, 0, sizeof(bool)*7);
 			if (expr=="*"){
-				memset(validDays, 1, sizeof(bool));
+				memset(validDays, 1, sizeof(bool)*7);
 				return;
 			}
 			if (expr.contains(",")){
@@ -238,6 +245,7 @@ public:
 	
 	time_t next(){
 // 		std::cout<<timespec<<std::endl;
+		candidate_t candidate;
 		auto parts=string(timespec).split(' ');
 		if (parts.size()!=6){
 			throw(std::exception());
@@ -245,9 +253,9 @@ public:
 		std::vector<std::shared_ptr<Check>> rules{
 			std::make_shared<InRange>(parts[0], 0,59, 4), // minutes
 			std::make_shared<InRange>(parts[1], 0,24, 3), // hours
-			std::make_shared<InRange>(parts[2], 0,31, 2), // day of month
-			std::make_shared<InRange>(parts[3], 0,12, 1), // month
-			std::make_shared<InRange>(parts[5], 1970,max_year+1, 0), // year
+			std::make_shared<InRange>(parts[2], 1,31, 2), // day of month
+			std::make_shared<InRange>(parts[3], 1,12, 1), // month
+			std::make_shared<InRange>(parts[5], candidate[0],max_year+1, 0), // year
 			std::make_shared<WeekDay>( parts[4] ),
 			std::make_shared<ValidDate>( )
 		};
@@ -258,7 +266,6 @@ public:
 		rules[5]->set_overflow_part(rules[2]);
 		rules[6]->set_overflow_part(rules[2]);
 		
-		candidate_t candidate;
 		rules[0]->incr(candidate);
 		
 		bool valid=true;
