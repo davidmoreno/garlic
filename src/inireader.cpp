@@ -30,7 +30,7 @@ IniReader::IniReader(const std::string& inifile)
 	d=std::make_shared<GarlicPrivate>();
 	
 	std::string group;
-	for(const auto &line: underscore::file(inifile)){
+	for(const ::underscore::string &line: underscore::file(inifile)){
 		auto l=line.split('#',true)[0];
 		if (l.empty())
 			continue;
